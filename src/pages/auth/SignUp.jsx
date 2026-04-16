@@ -26,7 +26,7 @@ import {
   MarkEmailReadOutlined,
 } from '@mui/icons-material'
 import { Link as RouterLink } from 'react-router-dom'
-import { styles } from '../auth/Auth.styles.js'
+import { styles } from './Auth.styles.js'
 import { signupSchema as schema } from './auth.schemas.js'
 
 // ─── Email Sent Dialog ────────────────────────────────────────────────────────
@@ -105,7 +105,7 @@ function EmailVerificationDialog({ open, email }) {
           </Alert>
 
           <Typography variant="caption" color="text.disabled">
-            The link expires in 20 minutes.
+            The link expires in 10 minutes.
           </Typography>
         </Stack>
       </DialogContent>

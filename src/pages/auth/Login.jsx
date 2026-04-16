@@ -22,7 +22,7 @@ import {
   LockOutlined,
 } from '@mui/icons-material'
 import { Link as RouterLink, useNavigate } from 'react-router-dom'
-import { styles } from '../auth/Auth.styles.js'
+import { styles } from './Auth.styles.js'
 import { loginSchema as schema } from './auth.schemas.js'
 
 export default function Login() {

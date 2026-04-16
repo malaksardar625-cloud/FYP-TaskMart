@@ -26,7 +26,6 @@ export default function VerifyOtp() {
 
   const inputRefs = useRef([])
 
-  // ✅ Move focus to next box automatically
   const handleChange = (index, value) => {
     if (!/^[0-9]?$/.test(value)) return
     const updated = [...otp]
@@ -37,7 +36,6 @@ export default function VerifyOtp() {
     }
   }
 
-  // ✅ Allow backspace to go back
   const handleKeyDown = (index, e) => {
     if (e.key === 'Backspace' && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus()
@@ -54,7 +52,7 @@ export default function VerifyOtp() {
     setLoading(true)
     setServerError('')
     try {
-      const response = await fetch('/api/auth/verify-otp', {
+      const response = await fetch('/api/auth/verify-reset-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -65,7 +63,6 @@ export default function VerifyOtp() {
         setServerError(result.message || 'Invalid OTP.')
         return
       }
-      // ✅ Pass email + verified token to reset screen
       navigate('/reset-password', { state: { email, token: result.token } })
     } catch {
       setServerError('Network error. Please check your connection.')
@@ -131,7 +128,7 @@ export default function VerifyOtp() {
             </Alert>
           )}
 
-          {/* ✅ 6 individual OTP boxes */}
+          {/* 6 individual OTP boxes */}
           <Stack
             direction="row"
             spacing={1.5}
@@ -144,9 +141,15 @@ export default function VerifyOtp() {
                 onChange={(e) => handleChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
                 inputRef={(el) => (inputRefs.current[index] = el)}
-                inputProps={{
-                  maxLength: 1,
-                  style: { textAlign: 'center', fontSize: 22, fontWeight: 700 },
+                slotProps={{
+                  htmlInput: {
+                    maxLength: 1,
+                    style: {
+                      textAlign: 'center',
+                      fontSize: 22,
+                      fontWeight: 700,
+                    },
+                  },
                 }}
                 sx={{ width: 48 }}
                 error={!!error}

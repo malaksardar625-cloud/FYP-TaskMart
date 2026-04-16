@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { joiResolver } from '@hookform/resolvers/joi'
-import { profileSetupSchema as schema } from '../ProfileSetup/profileSetupSchema.js'
+import { profileSetupSchema as schema } from './profileSetupSchema.js'
 import {
   Box,
   Paper,

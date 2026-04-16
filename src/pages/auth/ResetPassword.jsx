@@ -21,8 +21,10 @@ import { styles } from './Auth.styles.js'
 export default function ResetPassword() {
   const navigate = useNavigate()
   const location = useLocation()
-  const email = location.state?.email || ''
-  const token = location.state?.token || ''
+
+  // ✅ GET TOKEN FROM URL
+  const queryParams = new URLSearchParams(location.search)
+  const resetToken = queryParams.get('token')
 
   const [serverError, setServerError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -38,22 +40,25 @@ export default function ResetPassword() {
   const onSubmit = async (data) => {
     setLoading(true)
     setServerError('')
+
     try {
       const response = await fetch('/api/auth/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
-          email,
-          token,
-          password: data.password,
+          resetToken, // ✅ REQUIRED BY BACKEND
+          newPassword: data.password, // ✅ REQUIRED BY BACKEND
         }),
       })
+
       const result = await response.json()
+
       if (!response.ok) {
         setServerError(result.message || 'Failed to reset password.')
         return
       }
+
       navigate('/login', {
         state: { message: 'Password reset successfully. Please log in.' },
       })
@@ -67,7 +72,6 @@ export default function ResetPassword() {
   return (
     <Box sx={styles.root}>
       <Box sx={styles.container}>
-        {/* Brand */}
         <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
           <Box sx={styles.logoMark} />
           <Typography variant="h6" fontWeight={700}>
@@ -79,6 +83,7 @@ export default function ResetPassword() {
           <Typography variant="h5" fontWeight={700}>
             Reset password
           </Typography>
+
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
             Choose a strong new password for your account.
           </Typography>
@@ -115,15 +120,8 @@ export default function ResetPassword() {
                   ),
                   endAdornment: (
                     <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => setShowPassword((p) => !p)}
-                        edge="end"
-                      >
-                        {showPassword ? (
-                          <VisibilityOff fontSize="small" />
-                        ) : (
-                          <Visibility fontSize="small" />
-                        )}
+                      <IconButton onClick={() => setShowPassword((p) => !p)}>
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
                       </IconButton>
                     </InputAdornment>
                   ),
@@ -148,15 +146,8 @@ export default function ResetPassword() {
                   ),
                   endAdornment: (
                     <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => setShowConfirm((p) => !p)}
-                        edge="end"
-                      >
-                        {showConfirm ? (
-                          <VisibilityOff fontSize="small" />
-                        ) : (
-                          <Visibility fontSize="small" />
-                        )}
+                      <IconButton onClick={() => setShowConfirm((p) => !p)}>
+                        {showConfirm ? <VisibilityOff /> : <Visibility />}
                       </IconButton>
                     </InputAdornment>
                   ),
