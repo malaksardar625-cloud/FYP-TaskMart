@@ -7,6 +7,7 @@ import VerifyOtp from './pages/auth/VerifyOtp.jsx'
 import ResetPassword from './pages/auth/ResetPassword.jsx'
 import Dashboard from './pages/dashboard/Dashboard.jsx'
 import Settings from './pages/dashboard/sidebar/Settings.jsx'
+import NotificationsPage from './pages/dashboard/Notifications/NotificationsPage.jsx'
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/notifications" element={<NotificationsPage />} />
       </Routes>
     </>
   )

@@ -1,0 +1,9 @@
+[
+  { "label": "Dashboard", "active": true },
+  { "label": "Listings", "active": false },
+  { "label": "Orders", "active": false },
+  { "label": "Messages", "active": false },
+  { "label": "Payments", "active": false },
+  { "label": "Reviews", "active": false },
+  { "label": "Users", "active": false }
+]

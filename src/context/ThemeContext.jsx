@@ -44,7 +44,7 @@ export function AppThemeProvider({ children }) {
           secondary: { main: '#7c3aed' },
           background: {
             default: resolvedMode === 'light' ? '#f1f5f9' : '#0f172a',
-            paper: resolvedMode === 'light' ? '#ffffff' : '#1e293b',
+            paper: resolvedMode === 'light' ? '#f8f8ff' : '#1e293b',
           },
           text: {
             primary: resolvedMode === 'light' ? '#0f172a' : '#f1f5f9',

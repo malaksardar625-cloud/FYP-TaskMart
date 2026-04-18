@@ -8,8 +8,6 @@ import {
   Chip,
   Button,
   LinearProgress,
-  IconButton,
-  Badge,
   Card,
   CardContent,
 } from '@mui/material'
@@ -37,303 +35,88 @@ import {
 } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
 import { styles } from './dashboard.styles.js'
-import NotificationsPopover from './Notificationspopover.jsx'
+import NotificationsPopover from './Notifications/Notificationspopover.jsx'
+import LogoutButton from './logout.jsx'
 
-/* ─────────────────── MOCK DATA ───────────────────
-  Role-aware dashboard — change MOCK_USER.role between
-  'buyer', 'productSeller', 'serviceProvider' to test.
-  Replace with real Redux/TanStack data once auth works.
-*/
+// ── JSON imports (all mock data lives in src/mockData/) ──────────────
+import MOCK_USER from '../../mockData/user.json'
+import STATS_DATA from '../../mockData/stats.json'
+import ORDERS_DATA from '../../mockData/orders.json'
+import ACTIONS_DATA from '../../mockData/quickActions.json'
+import ROLE_DATA from '../../mockData/roleLabels.json'
+import STATUS_DATA from '../../mockData/statusConfig.json'
+import NAV_DATA from '../../mockData/navItems.json'
+import PROFILE_DATA from '../../mockData/profileSteps.json'
 
-const MOCK_USER = {
-  fullName: 'Abdul Qudoos',
-  username: 'abdulq',
-  role: 'buyer',
-  profileImage: '',
-  country: 'Pakistan',
+const STAT_ICONS = {
+  'Total Orders': <ShoppingBagOutlined />,
+  'Wishlist Items': <FavoriteOutlined />,
+  'Reviews Given': <StarOutlined />,
+  'Active Chats': <ChatBubbleOutlined />,
+  'Total Products': <InventoryOutlined />,
+  'Total Sales': <TrendingUpOutlined />,
+  'Pending Orders': <PendingOutlined />,
+  'Avg Rating': <StarOutlined />,
+  'Active Services': <HandymanOutlined />,
+  'Total Earnings': <TrendingUpOutlined />,
+  Bookings: <CalendarTodayOutlined />,
 }
 
-const STATS = {
-  buyer: [
-    {
-      label: 'Total Orders',
-      value: '12',
-      icon: <ShoppingBagOutlined />,
-      color: 'primary.main',
-      trend: '+2 this month',
-    },
-    {
-      label: 'Wishlist Items',
-      value: '8',
-      icon: <FavoriteOutlined />,
-      color: 'error.main',
-      trend: '3 on sale',
-    },
-    {
-      label: 'Reviews Given',
-      value: '5',
-      icon: <StarOutlined />,
-      color: 'warning.main',
-      trend: '+1 this week',
-    },
-    {
-      label: 'Active Chats',
-      value: '3',
-      icon: <ChatBubbleOutlined />,
-      color: 'success.main',
-      trend: '1 unread',
-    },
-  ],
-  productSeller: [
-    {
-      label: 'Total Products',
-      value: '24',
-      icon: <InventoryOutlined />,
-      color: 'primary.main',
-      trend: '+3 this month',
-    },
-    {
-      label: 'Total Sales',
-      value: 'Rs 45K',
-      icon: <TrendingUpOutlined />,
-      color: 'success.main',
-      trend: '+12% vs last month',
-    },
-    {
-      label: 'Pending Orders',
-      value: '6',
-      icon: <PendingOutlined />,
-      color: 'warning.main',
-      trend: '2 urgent',
-    },
-    {
-      label: 'Avg Rating',
-      value: '4.8',
-      icon: <StarOutlined />,
-      color: 'warning.main',
-      trend: '32 reviews',
-    },
-  ],
-  serviceProvider: [
-    {
-      label: 'Active Services',
-      value: '5',
-      icon: <HandymanOutlined />,
-      color: 'primary.main',
-      trend: '+1 this month',
-    },
-    {
-      label: 'Total Earnings',
-      value: 'Rs 62K',
-      icon: <TrendingUpOutlined />,
-      color: 'success.main',
-      trend: '+18% vs last month',
-    },
-    {
-      label: 'Bookings',
-      value: '14',
-      icon: <CalendarTodayOutlined />,
-      color: 'warning.main',
-      trend: '3 this week',
-    },
-    {
-      label: 'Avg Rating',
-      value: '4.9',
-      icon: <StarOutlined />,
-      color: 'warning.main',
-      trend: '58 reviews',
-    },
-  ],
+// Quick-action icons  (key = action.label from quickActions.json)
+const ACTION_ICONS = {
+  'Browse Products': <SearchOutlined />,
+  'Find Services': <HandymanOutlined />,
+  'My Orders': <ShoppingBagOutlined />,
+  Wishlist: <FavoriteOutlined />,
+  'Add Product': <AddOutlined />,
+  'My Listings': <InventoryOutlined />,
+  'View Orders': <ShoppingBagOutlined />,
+  Earnings: <TrendingUpOutlined />,
+  'Add Service': <AddOutlined />,
+  'My Services': <HandymanOutlined />,
+  Bookings: <CalendarTodayOutlined />,
 }
 
-const ORDERS = {
-  buyer: [
-    {
-      id: '#1042',
-      item: 'Wireless Headphones',
-      seller: 'TechStore PK',
-      status: 'delivered',
-      amount: 'Rs 3,500',
-      date: 'Apr 12',
-    },
-    {
-      id: '#1038',
-      item: 'Laptop Stand',
-      seller: 'GadgetHub',
-      status: 'shipped',
-      amount: 'Rs 1,200',
-      date: 'Apr 10',
-    },
-    {
-      id: '#1031',
-      item: 'Mechanical Keyboard',
-      seller: 'KeyboardKing',
-      status: 'processing',
-      amount: 'Rs 7,800',
-      date: 'Apr 8',
-    },
-    {
-      id: '#1028',
-      item: 'USB-C Hub',
-      seller: 'TechStore PK',
-      status: 'cancelled',
-      amount: 'Rs 2,100',
-      date: 'Apr 5',
-    },
-  ],
-  productSeller: [
-    {
-      id: '#2091',
-      item: 'Samsung Galaxy A54',
-      buyer: 'Ali Hassan',
-      status: 'processing',
-      amount: 'Rs 55,000',
-      date: 'Apr 14',
-    },
-    {
-      id: '#2088',
-      item: 'iPhone Case',
-      buyer: 'Sara Khan',
-      status: 'shipped',
-      amount: 'Rs 850',
-      date: 'Apr 12',
-    },
-    {
-      id: '#2085',
-      item: 'Wireless Charger',
-      buyer: 'Usman Tariq',
-      status: 'delivered',
-      amount: 'Rs 2,400',
-      date: 'Apr 10',
-    },
-    {
-      id: '#2079',
-      item: 'Bluetooth Speaker',
-      buyer: 'Fatima Malik',
-      status: 'delivered',
-      amount: 'Rs 4,200',
-      date: 'Apr 8',
-    },
-  ],
-  serviceProvider: [
-    {
-      id: '#B301',
-      item: 'Logo Design',
-      buyer: 'Ali Hassan',
-      status: 'processing',
-      amount: 'Rs 5,000',
-      date: 'Apr 14',
-    },
-    {
-      id: '#B298',
-      item: 'Web Development',
-      buyer: 'ABC Company',
-      status: 'processing',
-      amount: 'Rs 25,000',
-      date: 'Apr 12',
-    },
-    {
-      id: '#B291',
-      item: 'SEO Audit',
-      buyer: 'Sara Khan',
-      status: 'delivered',
-      amount: 'Rs 8,000',
-      date: 'Apr 9',
-    },
-    {
-      id: '#B285',
-      item: 'Social Media Setup',
-      buyer: 'Local Shop PK',
-      status: 'cancelled',
-      amount: 'Rs 3,500',
-      date: 'Apr 6',
-    },
-  ],
+// Role icons  (key = role string from user.json)
+const ROLE_ICONS = {
+  buyer: <ShoppingBagOutlined />,
+  productSeller: <StorefrontOutlined />,
+  serviceProvider: <HandymanOutlined />,
 }
 
-const QUICK_ACTIONS = {
-  buyer: [
-    { label: 'Browse Products', icon: <SearchOutlined />, path: '/products' },
-    { label: 'Find Services', icon: <HandymanOutlined />, path: '/services' },
-    { label: 'My Orders', icon: <ShoppingBagOutlined />, path: '/orders' },
-    { label: 'Wishlist', icon: <FavoriteOutlined />, path: '/wishlist' },
-  ],
-  productSeller: [
-    { label: 'Add Product', icon: <AddOutlined />, path: '/products/new' },
-    { label: 'My Listings', icon: <InventoryOutlined />, path: '/products' },
-    { label: 'View Orders', icon: <ShoppingBagOutlined />, path: '/orders' },
-    { label: 'Earnings', icon: <TrendingUpOutlined />, path: '/earnings' },
-  ],
-  serviceProvider: [
-    { label: 'Add Service', icon: <AddOutlined />, path: '/services/new' },
-    { label: 'My Services', icon: <HandymanOutlined />, path: '/services' },
-    { label: 'Bookings', icon: <CalendarTodayOutlined />, path: '/bookings' },
-    { label: 'Earnings', icon: <TrendingUpOutlined />, path: '/earnings' },
-  ],
+// Nav icons  (key = nav item label from navItems.json)
+const NAV_ICONS = {
+  Dashboard: <HomeOutlined />,
+  Listings: <InventoryOutlined />,
+  Orders: <ShoppingBagOutlined />,
+  Messages: <ChatBubbleOutlined />,
+  Payments: <PaymentOutlined />,
+  Reviews: <StarOutlined />,
+  Users: <PeopleOutlined />,
 }
 
-const ROLE_LABELS = {
-  buyer: { label: 'Buyer', icon: <ShoppingBagOutlined />, color: 'primary' },
-  productSeller: {
-    label: 'Product Seller',
-    icon: <StorefrontOutlined />,
-    color: 'success',
-  },
-  serviceProvider: {
-    label: 'Service Provider',
-    icon: <HandymanOutlined />,
-    color: 'warning',
-  },
+// Status icons  (key = status string from statusConfig.json)
+const STATUS_ICONS = {
+  delivered: <CheckCircleOutlined sx={{ fontSize: 14 }} />,
+  shipped: <PendingOutlined sx={{ fontSize: 14 }} />,
+  processing: <PendingOutlined sx={{ fontSize: 14 }} />,
+  cancelled: <CancelOutlined sx={{ fontSize: 14 }} />,
 }
-
-const STATUS_CONFIG = {
-  delivered: {
-    label: 'Delivered',
-    color: 'success',
-    icon: <CheckCircleOutlined sx={{ fontSize: 14 }} />,
-  },
-  shipped: {
-    label: 'Shipped',
-    color: 'info',
-    icon: <PendingOutlined sx={{ fontSize: 14 }} />,
-  },
-  processing: {
-    label: 'Processing',
-    color: 'warning',
-    icon: <PendingOutlined sx={{ fontSize: 14 }} />,
-  },
-  cancelled: {
-    label: 'Cancelled',
-    color: 'error',
-    icon: <CancelOutlined sx={{ fontSize: 14 }} />,
-  },
-}
-
-const NAV_ITEMS = [
-  { label: 'Dashboard', icon: <HomeOutlined />, active: true },
-  { label: 'Listings', icon: <InventoryOutlined />, active: false },
-  { label: 'Orders', icon: <ShoppingBagOutlined />, active: false },
-  { label: 'Messages', icon: <ChatBubbleOutlined />, active: false },
-  { label: 'Payments', icon: <PaymentOutlined />, active: false },
-  { label: 'Reviews', icon: <StarOutlined />, active: false },
-  { label: 'Users', icon: <PeopleOutlined />, active: false },
-]
-
-const PROFILE_STEPS = [
-  { label: 'Basic info', done: true },
-  { label: 'Profile photo', done: false },
-  { label: 'Phone number', done: true },
-  { label: 'First listing', done: true },
-]
 
 /* ─────────────────── COMPONENT ─────────────────── */
 export default function Dashboard() {
   const navigate = useNavigate()
+
+  // Pull current role from JSON — change "role" in user.json to switch views
   const role = MOCK_USER.role
-  const roleInfo = ROLE_LABELS[role]
-  const stats = STATS[role]
-  const orders = ORDERS[role]
-  const actions = QUICK_ACTIONS[role]
+
+  // Resolve role-level data from JSON
+  const roleInfo = ROLE_DATA[role] // { label, color }
+  const stats = STATS_DATA[role] // array of stat objects
+  const orders = ORDERS_DATA[role] // array of order objects
+  const actions = ACTIONS_DATA[role] // array of action objects
+  const navItems = NAV_DATA // flat array
+  const profileSteps = PROFILE_DATA // flat array
 
   return (
     <Box sx={styles.root}>
@@ -354,7 +137,7 @@ export default function Dashboard() {
               size="small"
               label={roleInfo.label}
               color={roleInfo.color}
-              icon={roleInfo.icon}
+              icon={ROLE_ICONS[role]}
               sx={{ height: 20, fontSize: '0.7rem' }}
             />
           </Box>
@@ -362,7 +145,7 @@ export default function Dashboard() {
 
         {/* Nav links */}
         <Stack spacing={0.5} flex={1}>
-          {NAV_ITEMS.map((item) => (
+          {navItems.map((item) => (
             <Box
               key={item.label}
               sx={{
@@ -376,7 +159,7 @@ export default function Dashboard() {
                   display: 'flex',
                 }}
               >
-                {item.icon}
+                {NAV_ICONS[item.label]}
               </Box>
               <Typography
                 variant="body2"
@@ -397,12 +180,7 @@ export default function Dashboard() {
               Settings
             </Typography>
           </Box>
-          <Box sx={styles.navItem} onClick={() => navigate('/login')}>
-            <LogoutOutlined sx={{ color: 'error.main', fontSize: 20 }} />
-            <Typography variant="body2" color="error.main">
-              Logout
-            </Typography>
-          </Box>
+          <LogoutButton styles={styles} />
         </Stack>
       </Box>
 
@@ -424,7 +202,7 @@ export default function Dashboard() {
           <NotificationsPopover />
         </Stack>
 
-        {/* Stats cards */}
+        {/* ── Stat Cards ── */}
         <Grid container spacing={2.5} sx={{ mb: 3 }}>
           {stats.map((stat) => (
             <Grid size={{ xs: 12, sm: 6, lg: 3 }} key={stat.label}>
@@ -455,6 +233,7 @@ export default function Dashboard() {
                       {stat.trend}
                     </Typography>
                   </Box>
+                  {/* Icon resolved from STAT_ICONS map using stat.label */}
                   <Box
                     sx={{
                       ...styles.statIcon,
@@ -462,7 +241,7 @@ export default function Dashboard() {
                       bgcolor: `${stat.color}15`,
                     }}
                   >
-                    {stat.icon}
+                    {STAT_ICONS[stat.label]}
                   </Box>
                 </Stack>
               </Paper>
@@ -470,9 +249,9 @@ export default function Dashboard() {
           ))}
         </Grid>
 
-        {/* Two column layout */}
+        {/* ── Two-column layout ── */}
         <Grid container spacing={2.5}>
-          {/* Orders / Bookings */}
+          {/* Orders / Bookings table */}
           <Grid size={{ xs: 12, lg: 8 }}>
             <Paper elevation={0} sx={styles.section}>
               <Stack
@@ -511,6 +290,7 @@ export default function Dashboard() {
                       spacing={2}
                       sx={{ alignItems: 'center', flex: 1 }}
                     >
+                      {/* Role-aware order icon */}
                       <Box sx={styles.orderIcon}>
                         {role === 'buyer' ? (
                           <ShoppingBagOutlined
@@ -526,6 +306,7 @@ export default function Dashboard() {
                           />
                         )}
                       </Box>
+
                       <Box flex={1}>
                         <Stack
                           direction="row"
@@ -544,6 +325,7 @@ export default function Dashboard() {
                           </Typography>
                         </Stack>
                         <Typography variant="caption" color="text.secondary">
+                          {/* buyer sees seller name; seller/provider sees buyer name */}
                           {role === 'buyer'
                             ? `From: ${order.seller}`
                             : `By: ${order.buyer}`}{' '}
@@ -551,6 +333,7 @@ export default function Dashboard() {
                         </Typography>
                       </Box>
                     </Stack>
+
                     <Stack
                       direction="row"
                       spacing={2}
@@ -563,11 +346,12 @@ export default function Dashboard() {
                       >
                         {order.amount}
                       </Typography>
+                      {/* Status chip — config resolved from STATUS_DATA (statusConfig.json) */}
                       <Chip
                         size="small"
-                        label={STATUS_CONFIG[order.status].label}
-                        color={STATUS_CONFIG[order.status].color}
-                        icon={STATUS_CONFIG[order.status].icon}
+                        label={STATUS_DATA[order.status].label}
+                        color={STATUS_DATA[order.status].color}
+                        icon={STATUS_ICONS[order.status]}
                         sx={{ fontSize: '0.7rem', height: 22 }}
                       />
                     </Stack>
@@ -601,7 +385,10 @@ export default function Dashboard() {
                         <CardContent
                           sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}
                         >
-                          <Box sx={styles.actionIcon}>{action.icon}</Box>
+                          {/* Icon resolved from ACTION_ICONS map using action.label */}
+                          <Box sx={styles.actionIcon}>
+                            {ACTION_ICONS[action.label]}
+                          </Box>
                           <Typography
                             variant="caption"
                             fontWeight={600}
@@ -629,38 +416,51 @@ export default function Dashboard() {
                 <Typography variant="caption" color="text.secondary">
                   Complete your profile to build trust
                 </Typography>
+
                 <Box sx={{ mt: 2 }}>
-                  <Stack
-                    direction="row"
-                    sx={{ justifyContent: 'space-between' }}
-                    mb={0.5}
-                  >
-                    <Typography variant="caption" color="text.secondary">
-                      Progress
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      fontWeight={600}
-                      color="primary.main"
-                    >
-                      75%
-                    </Typography>
-                  </Stack>
-                  <LinearProgress
-                    variant="determinate"
-                    value={75}
-                    sx={{
-                      height: 8,
-                      borderRadius: 10,
-                      bgcolor: 'grey.200',
-                      '& .MuiLinearProgress-bar': {
-                        background: 'linear-gradient(90deg, #2563eb, #7c3aed)',
-                        borderRadius: 10,
-                      },
-                    }}
-                  />
+                  {/* Progress bar — value computed from profileSteps.json */}
+                  {(() => {
+                    const total = profileSteps.length
+                    const done = profileSteps.filter((s) => s.done).length
+                    const pct = Math.round((done / total) * 100)
+                    return (
+                      <>
+                        <Stack
+                          direction="row"
+                          sx={{ justifyContent: 'space-between' }}
+                          mb={0.5}
+                        >
+                          <Typography variant="caption" color="text.secondary">
+                            Progress
+                          </Typography>
+                          <Typography
+                            variant="caption"
+                            fontWeight={600}
+                            color="primary.main"
+                          >
+                            {pct}%
+                          </Typography>
+                        </Stack>
+                        <LinearProgress
+                          variant="determinate"
+                          value={pct}
+                          sx={{
+                            height: 8,
+                            borderRadius: 10,
+                            bgcolor: 'grey.200',
+                            '& .MuiLinearProgress-bar': {
+                              background:
+                                'linear-gradient(90deg, #2563eb, #7c3aed)',
+                              borderRadius: 10,
+                            },
+                          }}
+                        />
+                      </>
+                    )
+                  })()}
+
                   <Stack spacing={1} mt={2}>
-                    {PROFILE_STEPS.map((item) => (
+                    {profileSteps.map((item) => (
                       <Stack
                         key={item.label}
                         direction="row"
@@ -682,6 +482,7 @@ export default function Dashboard() {
                       </Stack>
                     ))}
                   </Stack>
+
                   <Button
                     variant="outlined"
                     size="small"

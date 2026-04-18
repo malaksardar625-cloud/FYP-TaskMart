@@ -1,0 +1,6 @@
+{
+  "delivered": { "label": "Delivered", "color": "success" },
+  "shipped": { "label": "Shipped", "color": "info" },
+  "processing": { "label": "Processing", "color": "warning" },
+  "cancelled": { "label": "Cancelled", "color": "error" }
+}

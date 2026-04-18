@@ -1,0 +1,20 @@
+{
+  "buyer": [
+    { "label": "Browse Products", "path": "/products" },
+    { "label": "Find Services", "path": "/services" },
+    { "label": "My Orders", "path": "/orders" },
+    { "label": "Wishlist", "path": "/wishlist" }
+  ],
+  "productSeller": [
+    { "label": "Add Product", "path": "/products/new" },
+    { "label": "My Listings", "path": "/products" },
+    { "label": "View Orders", "path": "/orders" },
+    { "label": "Earnings", "path": "/earnings" }
+  ],
+  "serviceProvider": [
+    { "label": "Add Service", "path": "/services/new" },
+    { "label": "My Services", "path": "/services" },
+    { "label": "Bookings", "path": "/bookings" },
+    { "label": "Earnings", "path": "/earnings" }
+  ]
+}

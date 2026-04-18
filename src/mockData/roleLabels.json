@@ -1,0 +1,5 @@
+{
+  "buyer": { "label": "Buyer", "color": "primary" },
+  "productSeller": { "label": "Product Seller", "color": "success" },
+  "serviceProvider": { "label": "Service Provider", "color": "warning" }
+}

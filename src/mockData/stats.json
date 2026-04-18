@@ -1,0 +1,80 @@
+{
+  "buyer": [
+    {
+      "label": "Total Orders",
+      "value": "12",
+      "color": "primary.main",
+      "trend": "+2 this month"
+    },
+    {
+      "label": "Wishlist Items",
+      "value": "8",
+      "color": "error.main",
+      "trend": "3 on sale"
+    },
+    {
+      "label": "Reviews Given",
+      "value": "5",
+      "color": "warning.main",
+      "trend": "+1 this week"
+    },
+    {
+      "label": "Active Chats",
+      "value": "3",
+      "color": "success.main",
+      "trend": "1 unread"
+    }
+  ],
+  "productSeller": [
+    {
+      "label": "Total Products",
+      "value": "24",
+      "color": "primary.main",
+      "trend": "+3 this month"
+    },
+    {
+      "label": "Total Sales",
+      "value": "Rs 45K",
+      "color": "success.main",
+      "trend": "+12% vs last month"
+    },
+    {
+      "label": "Pending Orders",
+      "value": "6",
+      "color": "warning.main",
+      "trend": "2 urgent"
+    },
+    {
+      "label": "Avg Rating",
+      "value": "4.8",
+      "color": "warning.main",
+      "trend": "32 reviews"
+    }
+  ],
+  "serviceProvider": [
+    {
+      "label": "Active Services",
+      "value": "5",
+      "color": "primary.main",
+      "trend": "+1 this month"
+    },
+    {
+      "label": "Total Earnings",
+      "value": "Rs 62K",
+      "color": "success.main",
+      "trend": "+18% vs last month"
+    },
+    {
+      "label": "Bookings",
+      "value": "14",
+      "color": "warning.main",
+      "trend": "3 this week"
+    },
+    {
+      "label": "Avg Rating",
+      "value": "4.9",
+      "color": "warning.main",
+      "trend": "58 reviews"
+    }
+  ]
+}

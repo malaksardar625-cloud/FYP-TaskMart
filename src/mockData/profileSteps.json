@@ -1,0 +1,6 @@
+[
+  { "label": "Basic info", "done": true },
+  { "label": "Profile photo", "done": false },
+  { "label": "Phone number", "done": true },
+  { "label": "First listing", "done": true }
+]
