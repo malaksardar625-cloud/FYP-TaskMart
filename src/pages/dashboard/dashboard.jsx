@@ -7,11 +7,6 @@ import {
   Grid,
   Chip,
   Button,
-  Divider,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
   LinearProgress,
   IconButton,
   Badge,
@@ -25,7 +20,6 @@ import {
   TrendingUpOutlined,
   StarOutlined,
   ChatBubbleOutlined,
-  NotificationsOutlined,
   SettingsOutlined,
   LogoutOutlined,
   AddOutlined,
@@ -35,8 +29,6 @@ import {
   CheckCircleOutlined,
   PendingOutlined,
   CancelOutlined,
-  ArrowUpwardOutlined,
-  ArrowDownwardOutlined,
   HomeOutlined,
   SearchOutlined,
   FavoriteOutlined,
@@ -45,18 +37,18 @@ import {
 } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
 import { styles } from './dashboard.styles.js'
-import ThemeToggle from '../../components/ThemeToggle.jsx'
+import NotificationsPopover from './Notificationspopover.jsx'
 
-/* ─────────────────── MOCK DATA ─────────────────── 
-The dashboard is role-aware — change MOCK_USER.role between 'buyer', 'productSeller' and 'serviceProvider'
-to see it adapt. Once your backend auth is working you can replace MOCK_USER with real data from
- your Redux store or TanStack Query.
+/* ─────────────────── MOCK DATA ───────────────────
+  Role-aware dashboard — change MOCK_USER.role between
+  'buyer', 'productSeller', 'serviceProvider' to test.
+  Replace with real Redux/TanStack data once auth works.
 */
 
 const MOCK_USER = {
   fullName: 'Abdul Qudoos',
   username: 'abdulq',
-  role: 'buyer', //'productSeller', change to 'buyer' or 'serviceProvider' to test
+  role: 'buyer',
   profileImage: '',
   country: 'Pakistan',
 }
@@ -317,6 +309,23 @@ const STATUS_CONFIG = {
   },
 }
 
+const NAV_ITEMS = [
+  { label: 'Dashboard', icon: <HomeOutlined />, active: true },
+  { label: 'Listings', icon: <InventoryOutlined />, active: false },
+  { label: 'Orders', icon: <ShoppingBagOutlined />, active: false },
+  { label: 'Messages', icon: <ChatBubbleOutlined />, active: false },
+  { label: 'Payments', icon: <PaymentOutlined />, active: false },
+  { label: 'Reviews', icon: <StarOutlined />, active: false },
+  { label: 'Users', icon: <PeopleOutlined />, active: false },
+]
+
+const PROFILE_STEPS = [
+  { label: 'Basic info', done: true },
+  { label: 'Profile photo', done: false },
+  { label: 'Phone number', done: true },
+  { label: 'First listing', done: true },
+]
+
 /* ─────────────────── COMPONENT ─────────────────── */
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -328,44 +337,32 @@ export default function Dashboard() {
 
   return (
     <Box sx={styles.root}>
-      <ThemeToggle />
-
       {/* ── Sidebar ── */}
       <Box sx={styles.sidebar}>
-        {/* Logo */}
+        {/* User info */}
         <Stack
           direction="row"
           spacing={1.5}
           sx={{ alignItems: 'center', mb: 4 }}
         >
-          <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
-            <Avatar sx={styles.topAvatar}>{MOCK_USER.fullName[0]}</Avatar>
-            <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-              <Typography variant="body2" fontWeight={600} color="text.primary">
-                {MOCK_USER.fullName}
-              </Typography>
-              <Chip
-                size="small"
-                label={roleInfo.label}
-                color={roleInfo.color}
-                icon={roleInfo.icon}
-                sx={{ height: 20, fontSize: '0.7rem' }}
-              />
-            </Box>
-          </Stack>
+          <Avatar sx={styles.topAvatar}>{MOCK_USER.fullName[0]}</Avatar>
+          <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+            <Typography variant="body2" fontWeight={600} color="text.primary">
+              {MOCK_USER.fullName}
+            </Typography>
+            <Chip
+              size="small"
+              label={roleInfo.label}
+              color={roleInfo.color}
+              icon={roleInfo.icon}
+              sx={{ height: 20, fontSize: '0.7rem' }}
+            />
+          </Box>
         </Stack>
 
-        {/* Nav */}
+        {/* Nav links */}
         <Stack spacing={0.5} flex={1}>
-          {[
-            { label: 'Dashboard', icon: <HomeOutlined />, active: true },
-            { label: 'Listings', icon: <InventoryOutlined />, active: false },
-            { label: 'Orders', icon: <ShoppingBagOutlined />, active: false },
-            { label: 'Messages', icon: <ChatBubbleOutlined />, active: false },
-            { label: 'Payments', icon: <PaymentOutlined />, active: false },
-            { label: 'Reviews', icon: <StarOutlined />, active: false },
-            { label: 'Users', icon: <PeopleOutlined />, active: false },
-          ].map((item) => (
+          {NAV_ITEMS.map((item) => (
             <Box
               key={item.label}
               sx={{
@@ -394,7 +391,7 @@ export default function Dashboard() {
 
         {/* Bottom actions */}
         <Stack spacing={0.5}>
-          <Box sx={styles.navItem}>
+          <Box sx={styles.navItem} onClick={() => navigate('/settings')}>
             <SettingsOutlined sx={{ color: 'text.secondary', fontSize: 20 }} />
             <Typography variant="body2" color="text.secondary">
               Settings
@@ -414,8 +411,7 @@ export default function Dashboard() {
         {/* Top bar */}
         <Stack
           direction="row"
-          justifyContent="space-between"
-          sx={{ alignItems: 'center', mb: 3 }}
+          sx={{ alignItems: 'center', justifyContent: 'space-between', mb: 3 }}
         >
           <Box>
             <Typography variant="h5" fontWeight={700} color="text.primary">
@@ -425,24 +421,20 @@ export default function Dashboard() {
               Here is what is happening on your account today
             </Typography>
           </Box>
-          <Stack direction="row" spacing={1.5} sx={{ alignItems: 'end' }}>
-            <IconButton sx={styles.iconBtn}>
-              <Badge badgeContent={3} color="error">
-                <NotificationsOutlined />
-              </Badge>
-            </IconButton>
-          </Stack>
+          <NotificationsPopover />
         </Stack>
 
         {/* Stats cards */}
         <Grid container spacing={2.5} sx={{ mb: 3 }}>
           {stats.map((stat) => (
-            <Grid item xs={12} sm={6} lg={3} key={stat.label}>
+            <Grid size={{ xs: 12, sm: 6, lg: 3 }} key={stat.label}>
               <Paper elevation={0} sx={styles.statCard}>
                 <Stack
                   direction="row"
-                  justifyContent="space-between"
-                  sx={{ alignItems: 'flex-start' }}
+                  sx={{
+                    alignItems: 'flex-start',
+                    justifyContent: 'space-between',
+                  }}
                 >
                   <Box>
                     <Typography variant="body2" color="text.secondary" mb={0.5}>
@@ -480,13 +472,16 @@ export default function Dashboard() {
 
         {/* Two column layout */}
         <Grid container spacing={2.5}>
-          {/* Orders / Bookings table */}
-          <Grid item xs={12} lg={8}>
+          {/* Orders / Bookings */}
+          <Grid size={{ xs: 12, lg: 8 }}>
             <Paper elevation={0} sx={styles.section}>
               <Stack
                 direction="row"
-                justifyContent="space-between"
-                sx={{ alignItems: 'center', mb: 2.5 }}
+                sx={{
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  mb: 2.5,
+                }}
               >
                 <Typography
                   variant="subtitle1"
@@ -583,7 +578,7 @@ export default function Dashboard() {
           </Grid>
 
           {/* Right column */}
-          <Grid item xs={12} lg={4}>
+          <Grid size={{ xs: 12, lg: 4 }}>
             <Stack spacing={2.5}>
               {/* Quick actions */}
               <Paper elevation={0} sx={styles.section}>
@@ -597,7 +592,7 @@ export default function Dashboard() {
                 </Typography>
                 <Grid container spacing={1.5}>
                   {actions.map((action) => (
-                    <Grid item xs={6} key={action.label}>
+                    <Grid size={{ xs: 6 }} key={action.label}>
                       <Card
                         elevation={0}
                         onClick={() => navigate(action.path)}
@@ -637,7 +632,7 @@ export default function Dashboard() {
                 <Box sx={{ mt: 2 }}>
                   <Stack
                     direction="row"
-                    justifyContent="space-between"
+                    sx={{ justifyContent: 'space-between' }}
                     mb={0.5}
                   >
                     <Typography variant="caption" color="text.secondary">
@@ -665,12 +660,7 @@ export default function Dashboard() {
                     }}
                   />
                   <Stack spacing={1} mt={2}>
-                    {[
-                      { label: 'Basic info', done: true },
-                      { label: 'Profile photo', done: false },
-                      { label: 'Phone number', done: true },
-                      { label: 'First listing', done: true },
-                    ].map((item) => (
+                    {PROFILE_STEPS.map((item) => (
                       <Stack
                         key={item.label}
                         direction="row"
@@ -686,7 +676,6 @@ export default function Dashboard() {
                         <Typography
                           variant="caption"
                           color={item.done ? 'text.primary' : 'text.secondary'}
-                          sx={{ textDecoration: item.done ? 'none' : 'none' }}
                         >
                           {item.label}
                         </Typography>

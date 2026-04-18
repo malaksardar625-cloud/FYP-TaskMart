@@ -1,46 +1,61 @@
-import { createContext, useContext, useState, useMemo } from 'react'
+import { createContext, useContext, useState, useMemo, useEffect } from 'react'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import CssBaseline from '@mui/material/CssBaseline'
 
 const ThemeContext = createContext({
-  mode: 'light',
+  mode: 'system',
   toggleMode: () => {},
+  resolvedMode: 'light',
 })
 
 export const useThemeMode = () => useContext(ThemeContext)
 
 export function AppThemeProvider({ children }) {
-  const [mode, setMode] = useState('light')
+  const [mode, setMode] = useState('system')
 
-  const toggleMode = () =>
-    setMode((prev) => (prev === 'light' ? 'dark' : 'light'))
+  // Detect OS preference
+  const getSystemPreference = () =>
+    window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+
+  const [systemPreference, setSystemPreference] = useState(getSystemPreference)
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    const handler = (e) => setSystemPreference(e.matches ? 'dark' : 'light')
+    mediaQuery.addEventListener('change', handler)
+    return () => mediaQuery.removeEventListener('change', handler)
+  }, [])
+
+  const resolvedMode = mode === 'system' ? systemPreference : mode
+
+  const toggleMode = (value) => setMode(value)
 
   const theme = useMemo(
     () =>
       createTheme({
         palette: {
-          mode,
+          mode: resolvedMode,
           primary: {
             main: '#2563eb',
             dark: '#1d4ed8',
-            light: mode === 'light' ? '#eff6ff' : '#1e3a5f',
+            light: resolvedMode === 'light' ? '#eff6ff' : '#1e3a5f',
             contrastText: '#ffffff',
           },
           secondary: { main: '#7c3aed' },
           background: {
-            default: mode === 'light' ? '#f1f5f9' : '#0f172a',
-            paper: mode === 'light' ? '#ffffff' : '#1e293b',
+            default: resolvedMode === 'light' ? '#f1f5f9' : '#0f172a',
+            paper: resolvedMode === 'light' ? '#ffffff' : '#1e293b',
           },
           text: {
-            primary: mode === 'light' ? '#0f172a' : '#f1f5f9',
-            secondary: mode === 'light' ? '#64748b' : '#94a3b8',
+            primary: resolvedMode === 'light' ? '#0f172a' : '#f1f5f9',
+            secondary: resolvedMode === 'light' ? '#64748b' : '#94a3b8',
           },
-          divider: mode === 'light' ? '#e2e8f0' : '#334155',
+          divider: resolvedMode === 'light' ? '#e2e8f0' : '#334155',
           grey: {
-            100: mode === 'light' ? '#f1f5f9' : '#1e293b',
-            200: mode === 'light' ? '#e2e8f0' : '#334155',
-            300: mode === 'light' ? '#cbd5e1' : '#475569',
-            400: mode === 'light' ? '#94a3b8' : '#64748b',
+            100: resolvedMode === 'light' ? '#f1f5f9' : '#1e293b',
+            200: resolvedMode === 'light' ? '#e2e8f0' : '#334155',
+            300: resolvedMode === 'light' ? '#cbd5e1' : '#475569',
+            400: resolvedMode === 'light' ? '#94a3b8' : '#64748b',
           },
         },
         typography: {
@@ -111,11 +126,13 @@ export function AppThemeProvider({ children }) {
           },
         },
       }),
-    [mode]
+    [resolvedMode]
   )
 
   return (
-    <ThemeContext.Provider value={{ mode, toggleMode }}>
+    <ThemeContext.Provider value={{ mode, toggleMode, resolvedMode }}>
+      {' '}
+      {/* ← added resolvedMode */}
       <ThemeProvider theme={theme}>
         <CssBaseline />
         {children}

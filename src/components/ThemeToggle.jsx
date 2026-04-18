@@ -1,6 +1,6 @@
 import { IconButton, Tooltip } from '@mui/material'
 import { LightMode, DarkMode } from '@mui/icons-material'
-import { useThemeMode } from '../context/themeContext'
+import { useThemeMode } from '../context/ThemeContext'
 
 export default function ThemeToggle() {
   const { mode, toggleMode } = useThemeMode()
