@@ -8,12 +8,15 @@ import ResetPassword from './pages/auth/ResetPassword.jsx'
 import Dashboard from './pages/dashboard/Dashboard.jsx'
 import Settings from './pages/dashboard/sidebar/Settings.jsx'
 import NotificationsPage from './pages/dashboard/Notifications/NotificationsPage.jsx'
+import HomePage from './pages/homePage/HomePage.jsx'
+import ProductsPage from './pages/homePage/ProductsPage.jsx'
+import ServicesPage from './pages/homePage/ServicesPage.jsx'
 
 export default function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/" element={<Navigate to="/home" replace />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
         <Route path="/profile-setup" element={<ProfileSetup />} />
@@ -23,6 +26,15 @@ export default function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/notifications" element={<NotificationsPage />} />
+        <Route path="/home" element={<HomePage />} />
+        <Route path="/products" element={<ProductsPage />} />
+        <Route path="/services" element={<ServicesPage />} />
+        <Route
+          path="/home"
+          element={<HomePage setPage={null} addToCart={null} />}
+        />
+        <Route path="/products" element={<ProductsPage addToCart={null} />} />
+        <Route path="/services" element={<ServicesPage addToCart={null} />} />
       </Routes>
     </>
   )

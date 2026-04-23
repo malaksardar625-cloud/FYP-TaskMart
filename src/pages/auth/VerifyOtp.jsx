@@ -11,6 +11,7 @@ import {
   Stack,
 } from '@mui/material'
 import { styles } from './Auth.styles.js'
+import { Logo } from '../../components/shared.jsx'
 
 export default function VerifyOtp() {
   const navigate = useNavigate()
@@ -101,12 +102,7 @@ export default function VerifyOtp() {
     <Box sx={styles.root}>
       <Box sx={styles.container}>
         {/* Brand */}
-        <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
-          <Box sx={styles.logoMark} />
-          <Typography variant="h6" fontWeight={700}>
-            TaskMart
-          </Typography>
-        </Stack>
+        <Logo />
 
         <Paper elevation={0} sx={{ ...styles.card, mt: 4 }}>
           <Typography variant="h5" fontWeight={700}>

@@ -20,6 +20,7 @@ import {
 } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
 import { styles } from './Auth.styles.js'
+import { Logo } from '../../components/shared.jsx'
 
 export default function ForgotPassword() {
   const navigate = useNavigate()
@@ -74,12 +75,7 @@ export default function ForgotPassword() {
     <Box sx={styles.root}>
       <Box sx={styles.container}>
         {/* Brand */}
-        <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
-          <Box sx={styles.logoMark} />
-          <Typography variant="h6" fontWeight={700}>
-            TaskMart
-          </Typography>
-        </Stack>
+        <Logo />
 
         <Paper elevation={0} sx={{ ...styles.card, mt: 4 }}>
           {emailSent ? (

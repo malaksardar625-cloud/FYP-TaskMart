@@ -6,7 +6,7 @@ export const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     px: 3,
-    py: 3,
+    py: 2,
   },
 
   wrapper: {
@@ -18,18 +18,10 @@ export const styles = {
     mb: 3,
   },
 
-  logoMark: {
-    width: 32,
-    height: 32,
-    borderRadius: 2,
-    background: (theme) =>
-      `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-    boxShadow: (theme) => `0 2px 8px ${theme.palette.primary.main}44`,
-  },
-
   brandName: {
     fontWeight: 700,
   },
+
   card: {
     p: { xs: 3, sm: 4 },
     borderRadius: 1.5,

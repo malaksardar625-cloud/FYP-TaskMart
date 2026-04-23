@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useMutation } from '@tanstack/react-query'
+import axios from 'axios'
 import {
   Box,
   Typography,
@@ -18,14 +20,31 @@ export default function LogoutButton({ styles }) {
 
   const handleOpen = () => setOpen(true)
   const handleCancel = () => setOpen(false)
+
+  const logoutRoute = 'http://localhost:5000/api/auth/logout'
+
+  // React Query Logout API Call
+  const logoutMutation = useMutation({
+    mutationFn: async () => {
+      const res = await axios.post(logoutRoute, {}, { withCredentials: true })
+      return res.data
+    },
+    onSuccess: () => {
+      setOpen(false)
+      navigate('/login')
+    },
+    onError: (error) => {
+      console.error('Logout failed:', error)
+    },
+  })
+
   const handleLogout = () => {
-    setOpen(false)
-    navigate('/login')
+    logoutMutation.mutate()
   }
 
   return (
     <>
-      {/* ── Logout Nav Item ── */}
+      {/* Logout Nav Item */}
       <Box sx={styles?.navItem} onClick={handleOpen}>
         <LogoutOutlined sx={{ color: 'error.main', fontSize: 20 }} />
         <Typography variant="body2" color="error.main">
@@ -33,7 +52,7 @@ export default function LogoutButton({ styles }) {
         </Typography>
       </Box>
 
-      {/* ── Confirmation Dialog ── */}
+      {/* Confirmation Dialog */}
       <Dialog
         open={open}
         onClose={handleCancel}
@@ -71,7 +90,6 @@ export default function LogoutButton({ styles }) {
         <Divider sx={{ mx: 2, mb: 1 }} />
 
         <DialogActions sx={{ px: 2, pb: 2.5, gap: 1 }}>
-          {/* Cancel Button */}
           <Button
             fullWidth
             variant="outlined"
@@ -86,12 +104,12 @@ export default function LogoutButton({ styles }) {
             Cancel
           </Button>
 
-          {/* Confirm Logout Button */}
           <Button
             fullWidth
             variant="contained"
             color="error"
             onClick={handleLogout}
+            disabled={logoutMutation.isPending}
             sx={{
               borderRadius: 2,
               textTransform: 'none',
@@ -99,7 +117,7 @@ export default function LogoutButton({ styles }) {
               py: 1,
             }}
           >
-            Logout
+            {logoutMutation.isPending ? 'Logging out...' : 'Logout'}
           </Button>
         </DialogActions>
       </Dialog>

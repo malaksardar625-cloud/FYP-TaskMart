@@ -1,0 +1,26 @@
+[
+  {
+    "code": "TASKMART10",
+    "discount": "10% off",
+    "validUntil": "2025-06-30",
+    "minOrder": 5000
+  },
+  {
+    "code": "NEWUSER20",
+    "discount": "20% off",
+    "validUntil": "2025-05-31",
+    "minOrder": 3000
+  },
+  {
+    "code": "EID2025",
+    "discount": "PKR 1500 off",
+    "validUntil": "2025-04-15",
+    "minOrder": 10000
+  },
+  {
+    "code": "SUMMER15",
+    "discount": "15% off Electronics",
+    "validUntil": "2025-07-31",
+    "minOrder": 20000
+  }
+]

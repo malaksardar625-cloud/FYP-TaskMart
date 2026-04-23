@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "fullName": "Ahmed Khan",
+    "userName": "ahmedkhan",
+    "email": "ahmed@taskmart.pk",
+    "type": "user",
+    "avatar": "AK"
+  },
+  {
+    "id": 2,
+    "fullName": "Sara Malik",
+    "userName": "saramalik",
+    "email": "sara@gmail.com",
+    "type": "productSeller",
+    "avatar": "SM"
+  },
+  {
+    "id": 3,
+    "fullName": "Bilal Raza",
+    "userName": "bilalraza",
+    "email": "bilal@store.pk",
+    "type": "productSeller",
+    "avatar": "BR"
+  },
+  {
+    "id": 4,
+    "fullName": "Hina Butt",
+    "userName": "hinabutt",
+    "email": "hina@services.pk",
+    "type": "serviceProvider",
+    "avatar": "HB"
+  },
+  {
+    "id": 5,
+    "fullName": "Usman Tariq",
+    "userName": "usmantariq",
+    "email": "usman@freelance.pk",
+    "type": "serviceProvider",
+    "avatar": "UT"
+  },
+  {
+    "id": 6,
+    "fullName": "Zara Hussain",
+    "userName": "zarahussain",
+    "email": "zara@shop.com",
+    "type": "user",
+    "avatar": "ZH"
+  }
+]

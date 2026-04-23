@@ -17,6 +17,7 @@ import {
 import { LockOutlined, Visibility, VisibilityOff } from '@mui/icons-material'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { styles } from './Auth.styles.js'
+import { Logo } from '../../components/shared.jsx'
 
 export default function ResetPassword() {
   const navigate = useNavigate()
@@ -72,12 +73,8 @@ export default function ResetPassword() {
   return (
     <Box sx={styles.root}>
       <Box sx={styles.container}>
-        <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
-          <Box sx={styles.logoMark} />
-          <Typography variant="h6" fontWeight={700}>
-            TaskMart
-          </Typography>
-        </Stack>
+        {/* Brand */}
+        <Logo />
 
         <Paper elevation={0} sx={{ ...styles.card, mt: 4 }}>
           <Typography variant="h5" fontWeight={700}>

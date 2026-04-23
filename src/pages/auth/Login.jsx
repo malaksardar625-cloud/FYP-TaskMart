@@ -24,6 +24,7 @@ import {
 import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import { styles } from './Auth.styles.js'
 import { loginSchema as schema } from './auth.schemas.js'
+import { Logo } from '../../components/shared.jsx'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -56,7 +57,11 @@ export default function Login() {
         setServerError(result.message || 'Invalid credentials.')
         return
       }
-      navigate('/profile-setup')
+      if (result.data.profileStatus === 'INCOMPLETE') {
+        navigate('/profile-setup')
+      } else {
+        navigate('/dashboard')
+      }
     } catch {
       setServerError('Network error. Please check your connection.')
     } finally {
@@ -68,16 +73,7 @@ export default function Login() {
     <Box sx={styles.root}>
       <Box sx={styles.wrapper}>
         {/* Brand */}
-        <Stack
-          direction="row"
-          spacing={1.5}
-          sx={{ ...styles.brandRow, alignItems: 'center' }}
-        >
-          <Box sx={styles.logoMark} />
-          <Typography variant="h6" color="text.primary" sx={styles.brandName}>
-            TaskMart
-          </Typography>
-        </Stack>
+        <Logo />
 
         <Paper elevation={0} sx={styles.card}>
           <Typography variant="h5" color="text.primary" sx={styles.heading}>
