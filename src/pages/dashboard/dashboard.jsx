@@ -1,15 +1,16 @@
+import { useState } from 'react'
 import {
   Box,
   Paper,
   Typography,
   Stack,
-  Avatar,
   Grid,
   Chip,
   Button,
   LinearProgress,
   Card,
   CardContent,
+  IconButton,
 } from '@mui/material'
 import {
   ShoppingBagOutlined,
@@ -18,8 +19,6 @@ import {
   TrendingUpOutlined,
   StarOutlined,
   ChatBubbleOutlined,
-  SettingsOutlined,
-  LogoutOutlined,
   AddOutlined,
   VisibilityOutlined,
   PeopleOutlined,
@@ -27,25 +26,22 @@ import {
   CheckCircleOutlined,
   PendingOutlined,
   CancelOutlined,
-  HomeOutlined,
   SearchOutlined,
   FavoriteOutlined,
   CalendarTodayOutlined,
   InventoryOutlined,
+  MenuOutlined,
 } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
 import { styles } from './dashboard.styles.js'
-import NotificationsPopover from './Notifications/Notificationspopover.jsx'
-import LogoutButton from './logout.jsx'
+import NotificationsPopover from './notifications/notificationsPopover.jsx'
+import Sidebar from './sidebar/sidebar.jsx'
 
-// ── JSON imports (all mock data lives in src/mockData/) ──────────────
 import MOCK_USER from '../../mockData/user.json'
 import STATS_DATA from '../../mockData/stats.json'
 import ORDERS_DATA from '../../mockData/orders.json'
 import ACTIONS_DATA from '../../mockData/quickActions.json'
-import ROLE_DATA from '../../mockData/roleLabels.json'
 import STATUS_DATA from '../../mockData/statusConfig.json'
-import NAV_DATA from '../../mockData/navItems.json'
 import PROFILE_DATA from '../../mockData/profileSteps.json'
 
 const STAT_ICONS = {
@@ -62,7 +58,6 @@ const STAT_ICONS = {
   Bookings: <CalendarTodayOutlined />,
 }
 
-// Quick-action icons  (key = action.label from quickActions.json)
 const ACTION_ICONS = {
   'Browse Products': <SearchOutlined />,
   'Find Services': <HandymanOutlined />,
@@ -77,25 +72,6 @@ const ACTION_ICONS = {
   Bookings: <CalendarTodayOutlined />,
 }
 
-// Role icons  (key = role string from user.json)
-const ROLE_ICONS = {
-  buyer: <ShoppingBagOutlined />,
-  productSeller: <StorefrontOutlined />,
-  serviceProvider: <HandymanOutlined />,
-}
-
-// Nav icons  (key = nav item label from navItems.json)
-const NAV_ICONS = {
-  Dashboard: <HomeOutlined />,
-  Listings: <InventoryOutlined />,
-  Orders: <ShoppingBagOutlined />,
-  Messages: <ChatBubbleOutlined />,
-  Payments: <PaymentOutlined />,
-  Reviews: <StarOutlined />,
-  Users: <PeopleOutlined />,
-}
-
-// Status icons  (key = status string from statusConfig.json)
 const STATUS_ICONS = {
   delivered: <CheckCircleOutlined sx={{ fontSize: 14 }} />,
   shipped: <PendingOutlined sx={{ fontSize: 14 }} />,
@@ -103,89 +79,42 @@ const STATUS_ICONS = {
   cancelled: <CancelOutlined sx={{ fontSize: 14 }} />,
 }
 
-/* ─────────────────── COMPONENT ─────────────────── */
 export default function Dashboard() {
   const navigate = useNavigate()
+  const [mobileOpen, setMobileOpen] = useState(false)
 
-  // Pull current role from JSON — change "role" in user.json to switch views
   const role = MOCK_USER.role
-
-  // Resolve role-level data from JSON
-  const roleInfo = ROLE_DATA[role] // { label, color }
-  const stats = STATS_DATA[role] // array of stat objects
-  const orders = ORDERS_DATA[role] // array of order objects
-  const actions = ACTIONS_DATA[role] // array of action objects
-  const navItems = NAV_DATA // flat array
-  const profileSteps = PROFILE_DATA // flat array
+  const stats = STATS_DATA[role]
+  const orders = ORDERS_DATA[role]
+  const actions = ACTIONS_DATA[role]
+  const profileSteps = PROFILE_DATA
 
   return (
-    <Box sx={styles.root}>
-      {/* ── Sidebar ── */}
-      <Box sx={styles.sidebar}>
-        {/* User info */}
-        <Stack
-          direction="row"
-          spacing={1.5}
-          sx={{ alignItems: 'center', mb: 4 }}
+    <Box sx={{ ...styles.root, overflow: 'hidden', height: '100vh' }}>
+      {/* Sidebar */}
+      <Sidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
+
+      {/* Main content */}
+      <Box sx={{ ...styles.main, overflow: 'auto' }}>
+        {/* Mobile top bar with hamburger */}
+        <Box
+          sx={{
+            display: { xs: 'flex', md: 'none' },
+            alignItems: 'center',
+            mb: 2,
+            pb: 1.5,
+            borderBottom: '0.5px solid',
+            borderColor: 'divider',
+          }}
         >
-          <Avatar sx={styles.topAvatar}>{MOCK_USER.fullName[0]}</Avatar>
-          <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-            <Typography variant="body2" fontWeight={600} color="text.primary">
-              {MOCK_USER.fullName}
-            </Typography>
-            <Chip
-              size="small"
-              label={roleInfo.label}
-              color={roleInfo.color}
-              icon={ROLE_ICONS[role]}
-              sx={{ height: 20, fontSize: '0.7rem' }}
-            />
-          </Box>
-        </Stack>
+          <IconButton onClick={() => setMobileOpen(true)} sx={{ mr: 1 }}>
+            <MenuOutlined />
+          </IconButton>
+          <Typography variant="body1" fontWeight={700} color="text.primary">
+            TaskMart
+          </Typography>
+        </Box>
 
-        {/* Nav links */}
-        <Stack spacing={0.5} flex={1}>
-          {navItems.map((item) => (
-            <Box
-              key={item.label}
-              sx={{
-                ...styles.navItem,
-                ...(item.active ? styles.navItemActive : {}),
-              }}
-            >
-              <Box
-                sx={{
-                  color: item.active ? 'primary.main' : 'text.secondary',
-                  display: 'flex',
-                }}
-              >
-                {NAV_ICONS[item.label]}
-              </Box>
-              <Typography
-                variant="body2"
-                fontWeight={item.active ? 600 : 400}
-                color={item.active ? 'primary.main' : 'text.secondary'}
-              >
-                {item.label}
-              </Typography>
-            </Box>
-          ))}
-        </Stack>
-
-        {/* Bottom actions */}
-        <Stack spacing={0.5}>
-          <Box sx={styles.navItem} onClick={() => navigate('/settings')}>
-            <SettingsOutlined sx={{ color: 'text.secondary', fontSize: 20 }} />
-            <Typography variant="body2" color="text.secondary">
-              Settings
-            </Typography>
-          </Box>
-          <LogoutButton styles={styles} />
-        </Stack>
-      </Box>
-
-      {/* ── Main Content ── */}
-      <Box sx={styles.main}>
         {/* Top bar */}
         <Stack
           direction="row"
@@ -202,7 +131,7 @@ export default function Dashboard() {
           <NotificationsPopover />
         </Stack>
 
-        {/* ── Stat Cards ── */}
+        {/* Stat Cards */}
         <Grid container spacing={2.5} sx={{ mb: 3 }}>
           {stats.map((stat) => (
             <Grid size={{ xs: 12, sm: 6, lg: 3 }} key={stat.label}>
@@ -233,7 +162,6 @@ export default function Dashboard() {
                       {stat.trend}
                     </Typography>
                   </Box>
-                  {/* Icon resolved from STAT_ICONS map using stat.label */}
                   <Box
                     sx={{
                       ...styles.statIcon,
@@ -249,9 +177,9 @@ export default function Dashboard() {
           ))}
         </Grid>
 
-        {/* ── Two-column layout ── */}
+        {/* Two-column layout */}
         <Grid container spacing={2.5}>
-          {/* Orders / Bookings table */}
+          {/* Orders table */}
           <Grid size={{ xs: 12, lg: 8 }}>
             <Paper elevation={0} sx={styles.section}>
               <Stack
@@ -290,7 +218,6 @@ export default function Dashboard() {
                       spacing={2}
                       sx={{ alignItems: 'center', flex: 1 }}
                     >
-                      {/* Role-aware order icon */}
                       <Box sx={styles.orderIcon}>
                         {role === 'buyer' ? (
                           <ShoppingBagOutlined
@@ -306,7 +233,6 @@ export default function Dashboard() {
                           />
                         )}
                       </Box>
-
                       <Box flex={1}>
                         <Stack
                           direction="row"
@@ -325,7 +251,6 @@ export default function Dashboard() {
                           </Typography>
                         </Stack>
                         <Typography variant="caption" color="text.secondary">
-                          {/* buyer sees seller name; seller/provider sees buyer name */}
                           {role === 'buyer'
                             ? `From: ${order.seller}`
                             : `By: ${order.buyer}`}{' '}
@@ -333,7 +258,6 @@ export default function Dashboard() {
                         </Typography>
                       </Box>
                     </Stack>
-
                     <Stack
                       direction="row"
                       spacing={2}
@@ -346,7 +270,6 @@ export default function Dashboard() {
                       >
                         {order.amount}
                       </Typography>
-                      {/* Status chip — config resolved from STATUS_DATA (statusConfig.json) */}
                       <Chip
                         size="small"
                         label={STATUS_DATA[order.status].label}
@@ -385,7 +308,6 @@ export default function Dashboard() {
                         <CardContent
                           sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}
                         >
-                          {/* Icon resolved from ACTION_ICONS map using action.label */}
                           <Box sx={styles.actionIcon}>
                             {ACTION_ICONS[action.label]}
                           </Box>
@@ -416,9 +338,7 @@ export default function Dashboard() {
                 <Typography variant="caption" color="text.secondary">
                   Complete your profile to build trust
                 </Typography>
-
                 <Box sx={{ mt: 2 }}>
-                  {/* Progress bar — value computed from profileSteps.json */}
                   {(() => {
                     const total = profileSteps.length
                     const done = profileSteps.filter((s) => s.done).length
@@ -449,8 +369,8 @@ export default function Dashboard() {
                             borderRadius: 10,
                             bgcolor: 'grey.200',
                             '& .MuiLinearProgress-bar': {
-                              background:
-                                'linear-gradient(90deg, #2563eb, #7c3aed)',
+                              background: (theme) =>
+                                `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
                               borderRadius: 10,
                             },
                           }}
@@ -458,7 +378,6 @@ export default function Dashboard() {
                       </>
                     )
                   })()}
-
                   <Stack spacing={1} mt={2}>
                     {profileSteps.map((item) => (
                       <Stack
@@ -482,7 +401,6 @@ export default function Dashboard() {
                       </Stack>
                     ))}
                   </Stack>
-
                   <Button
                     variant="outlined"
                     size="small"

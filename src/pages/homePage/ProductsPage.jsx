@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Box, Chip, Container, Grid, Stack, Typography } from '@mui/material'
 
 import { ItemCard, CouponBanner, Footer } from '../../components/shared'
-import productsData from '../../mockData/Products.json'
+import productsData from '../../mockData/products.json'
 
 // All unique categories derived from data (keeps it DRY)
 const ALL_CATEGORIES = ['All', ...new Set(productsData.map((p) => p.category))]
@@ -28,7 +28,7 @@ export default function ProductsPage({ addToCart }) {
           textAlign: 'center',
         }}
       >
-        <Typography variant="h3" sx={{ color: '#fff', mb: 1 }}>
+        <Typography variant="h3" sx={{ color: '#fff', mb: 2, fontWeight: 700 }}>
           Browse Products
         </Typography>
         <Typography
@@ -51,6 +51,11 @@ export default function ProductsPage({ addToCart }) {
               sx={{
                 fontWeight: 700,
                 cursor: 'pointer',
+                px: 1.5,
+                mb: 1.5,
+                ml: '1rem',
+                height: 36,
+                borderRadius: 99,
                 '&:hover': { bgcolor: activeCat === c ? undefined : '#e8ecf4' },
               }}
             />
@@ -62,13 +67,19 @@ export default function ProductsPage({ addToCart }) {
           const items = productsData.filter((p) => p.category === section)
           return (
             <Box key={section} mb={6}>
-              <Stack direction="row" alignItems="center" gap={1.5} mb={3}>
+              <Stack
+                direction="row"
+                gap={1.5}
+                mb={4}
+                sx={{ flexWrap: 'wrap', rowGap: 1.5, m: 3 }}
+              >
                 <Box
                   sx={{
                     width: 4,
                     height: 28,
                     bgcolor: 'secondary.main',
                     borderRadius: 2,
+                    mb: 1.5,
                   }}
                 />
                 <Typography variant="h5" sx={{ fontWeight: 700 }}>

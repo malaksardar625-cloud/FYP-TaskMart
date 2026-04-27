@@ -19,7 +19,7 @@ import {
   MarkEmailReadOutlined,
 } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
-import { styles } from './Auth.styles.js'
+import { styles } from './auth.styles.js'
 import { Logo } from '../../components/shared.jsx'
 
 export default function ForgotPassword() {
@@ -137,7 +137,7 @@ export default function ForgotPassword() {
             /* ─── Form State ─── */
             <>
               <Typography variant="h5" fontWeight={700}>
-                Forgot password
+                Reset your password
               </Typography>
               <Typography
                 variant="body2"

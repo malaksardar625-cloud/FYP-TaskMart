@@ -16,7 +16,7 @@ import {
 } from '@mui/material'
 import { LockOutlined, Visibility, VisibilityOff } from '@mui/icons-material'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { styles } from './Auth.styles.js'
+import { styles } from './auth.styles.js'
 import { Logo } from '../../components/shared.jsx'
 
 export default function ResetPassword() {

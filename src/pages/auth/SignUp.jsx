@@ -26,7 +26,7 @@ import {
   MarkEmailReadOutlined,
 } from '@mui/icons-material'
 import { Link as RouterLink } from 'react-router-dom'
-import { styles } from './Auth.styles.js'
+import { styles } from './auth.styles.js'
 import { signupSchema as schema } from './auth.schemas.js'
 import { Logo } from '../../components/shared.jsx'
 
@@ -51,7 +51,8 @@ function EmailVerificationDialog({ open, email }) {
         {/* Coloured top band */}
         <Box
           sx={{
-            background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+            background: (theme) =>
+              `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
             py: 4,
             display: 'flex',
             flexDirection: 'column',
@@ -70,7 +71,9 @@ function EmailVerificationDialog({ open, email }) {
               justifyContent: 'center',
             }}
           >
-            <MarkEmailReadOutlined sx={{ fontSize: 36, color: '#fff' }} />
+            <MarkEmailReadOutlined
+              sx={{ fontSize: 36, color: 'primary.contrastText' }}
+            />
           </Box>
           <Typography
             variant="h6"

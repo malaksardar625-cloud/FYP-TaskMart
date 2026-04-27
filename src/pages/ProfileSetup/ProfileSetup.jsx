@@ -28,7 +28,7 @@ import {
   ImageOutlined,
 } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
-import { styles } from './ProfileSetup.styles.js'
+import { styles } from './profileSetup.styles.js'
 
 const COUNTRIES = [
   'Pakistan',

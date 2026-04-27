@@ -10,7 +10,7 @@ import {
   CircularProgress,
   Stack,
 } from '@mui/material'
-import { styles } from './Auth.styles.js'
+import { styles } from './auth.styles.js'
 import { Logo } from '../../components/shared.jsx'
 
 export default function VerifyOtp() {

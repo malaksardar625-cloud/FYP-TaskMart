@@ -11,6 +11,10 @@ import {
   Container,
   FormControl,
   Select,
+  AppBar,
+  Toolbar,
+  Snackbar,
+  Alert,
 } from '@mui/material'
 import {
   Search,
@@ -27,6 +31,7 @@ import { PAGES } from './shared.jsx'
 import * as S from './styles.js'
 import { Logo } from './shared.jsx'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../hooks/useAuth'
 
 // ── DATA ──────────────────────────────────────────────────────
 
@@ -203,6 +208,16 @@ function NavDropdownItem({ item, setPage }) {
 
 export function Navbar({ setPage }) {
   const navigate = useNavigate()
+  const { user } = useAuth()
+  const [showMsg, setShowMsg] = useState(false)
+
+  const handleDashboard = () => {
+    if (user) {
+      navigate('/dashboard')
+    } else {
+      setShowMsg(true)
+    }
+  }
   return (
     <Box component="header" sx={S.navbarRoot}>
       <Container maxWidth="xl">
@@ -230,15 +245,44 @@ export function Navbar({ setPage }) {
           </IconButton>
 
           {/* Dashboard */}
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<Dashboard />}
-            onClick={() => navigate('/dashboard')}
-            sx={S.dashboardBtn}
-          >
-            Dashboard
-          </Button>
+          <>
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<Dashboard />}
+              onClick={handleDashboard}
+              sx={S.dashboardBtn}
+            >
+              Dashboard
+            </Button>
+
+            {/* Toast message with sign in button */}
+            <Snackbar
+              open={showMsg}
+              autoHideDuration={6000}
+              onClose={() => setShowMsg(false)}
+              anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+              <Alert
+                severity="warning"
+                onClose={() => setShowMsg(false)}
+                action={
+                  <Button
+                    color="inherit"
+                    size="small"
+                    onClick={() => {
+                      setShowMsg(false)
+                      navigate('/login')
+                    }}
+                  >
+                    Sign in
+                  </Button>
+                }
+              >
+                Sign in or create an account to access your dashboard.
+              </Alert>
+            </Snackbar>
+          </>
         </Stack>
       </Container>
     </Box>

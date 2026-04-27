@@ -1,14 +1,7 @@
-import { createContext, useContext, useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
+import { ThemeContext } from './themeContext.js'
 import CssBaseline from '@mui/material/CssBaseline'
-
-const ThemeContext = createContext({
-  mode: 'system',
-  toggleMode: () => {},
-  resolvedMode: 'light',
-})
-
-export const useThemeMode = () => useContext(ThemeContext)
 
 export function AppThemeProvider({ children }) {
   const [mode, setMode] = useState('system')
@@ -36,26 +29,26 @@ export function AppThemeProvider({ children }) {
         palette: {
           mode: resolvedMode,
           primary: {
-            main: '#2563eb',
-            dark: '#1d4ed8',
-            light: resolvedMode === 'light' ? '#eff6ff' : '#1e3a5f',
-            contrastText: '#ffffff',
+            main: '#235347',
+            dark: '#163B32',
+            light: resolvedMode === 'light' ? '#DAF1DE' : '#0B2B26',
+            contrastText: '#DAF1DE',
           },
-          secondary: { main: '#7c3aed' },
+          secondary: { main: '#8EB69B' },
           background: {
-            default: resolvedMode === 'light' ? '#f1f5f9' : '#0f172a',
-            paper: resolvedMode === 'light' ? '#f8f8ff' : '#1e293b',
+            default: resolvedMode === 'light' ? '#DAF1DE' : '#051F20',
+            paper: resolvedMode === 'light' ? '#ffffff' : '#0B2B26',
           },
           text: {
-            primary: resolvedMode === 'light' ? '#0f172a' : '#f1f5f9',
-            secondary: resolvedMode === 'light' ? '#64748b' : '#94a3b8',
+            primary: resolvedMode === 'light' ? '#051F20' : '#DAF1DE',
+            secondary: resolvedMode === 'light' ? '#235347' : '#8EB69B',
           },
-          divider: resolvedMode === 'light' ? '#e2e8f0' : '#334155',
+          divider: resolvedMode === 'light' ? '#8EB69B' : '#163B32',
           grey: {
-            100: resolvedMode === 'light' ? '#f1f5f9' : '#1e293b',
-            200: resolvedMode === 'light' ? '#e2e8f0' : '#334155',
-            300: resolvedMode === 'light' ? '#cbd5e1' : '#475569',
-            400: resolvedMode === 'light' ? '#94a3b8' : '#64748b',
+            100: resolvedMode === 'light' ? '#DAF1DE' : '#0B2B26',
+            200: resolvedMode === 'light' ? '#8EB69B' : '#163B32',
+            300: resolvedMode === 'light' ? '#235347' : '#8EB69B',
+            400: resolvedMode === 'light' ? '#163B32' : '#DAF1DE',
           },
         },
         typography: {
@@ -71,16 +64,16 @@ export function AppThemeProvider({ children }) {
                 '& .MuiOutlinedInput-root': {
                   borderRadius: 10,
                   backgroundColor:
-                    theme.palette.mode === 'light' ? '#f8fafc' : '#0f172a',
+                    theme.palette.mode === 'light' ? '#DAF1DE' : '#051F20',
                   '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#2563eb',
+                    borderColor: '#235347',
                   },
                   '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#2563eb',
+                    borderColor: '#235347',
                     borderWidth: 2,
                   },
                 },
-                '& .MuiInputLabel-root.Mui-focused': { color: '#2563eb' },
+                '& .MuiInputLabel-root.Mui-focused': { color: '#235347' },
               }),
             },
           },
@@ -95,10 +88,10 @@ export function AppThemeProvider({ children }) {
                 padding: '11px 24px',
               },
               containedPrimary: {
-                background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
+                background: 'linear-gradient(135deg, #235347 0%, #64748b 100%)',
                 '&:hover': {
                   background:
-                    'linear-gradient(135deg, #1d4ed8 0%, #6d28d9 100%)',
+                    'linear-gradient(135deg, #163B32 0%, #64748b 100%)',
                 },
                 '&.Mui-disabled': { background: '#334155', color: '#64748b' },
               },
@@ -117,7 +110,7 @@ export function AppThemeProvider({ children }) {
           MuiLink: {
             styleOverrides: {
               root: {
-                color: '#2563eb',
+                color: '#235347',
                 fontWeight: 600,
                 textDecoration: 'none',
                 '&:hover': { textDecoration: 'underline' },

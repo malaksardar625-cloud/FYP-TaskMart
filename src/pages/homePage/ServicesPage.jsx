@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Box, Chip, Container, Grid, Stack, Typography } from '@mui/material'
 
 import { ItemCard, CouponBanner, Footer } from '../../components/shared.jsx'
-import servicesData from '../../mockData/Services.json'
+import servicesData from '../../mockData/services.json'
 
 // All unique categories derived from data
 const ALL_CATEGORIES = ['All', ...new Set(servicesData.map((s) => s.category))]
@@ -27,7 +27,7 @@ export default function ServicesPage({ addToCart }) {
           textAlign: 'center',
         }}
       >
-        <Typography variant="h3" sx={{ color: '#fff', mb: 1 }}>
+        <Typography variant="h3" sx={{ color: '#fff', mb: 2, fontWeight: 700 }}>
           Browse Services
         </Typography>
         <Typography
@@ -39,7 +39,12 @@ export default function ServicesPage({ addToCart }) {
 
       <Container maxWidth="xl" sx={{ py: 5 }}>
         {/* ── Category Filter Chips ──────────────────────────── */}
-        <Stack direction="row" gap={1} mb={4} sx={{ flexWrap: 'wrap' }}>
+        <Stack
+          direction="row"
+          gap={1.5}
+          mb={4}
+          sx={{ flexWrap: 'wrap', rowGap: 1.5 }}
+        >
           {ALL_CATEGORIES.map((c) => (
             <Chip
               key={c}
@@ -50,6 +55,11 @@ export default function ServicesPage({ addToCart }) {
               sx={{
                 fontWeight: 700,
                 cursor: 'pointer',
+                px: 1.5,
+                mb: 3,
+                ml: '1rem',
+                height: 36,
+                borderRadius: 99,
                 '&:hover': { bgcolor: activeCat === c ? undefined : '#e8ecf4' },
               }}
             />
@@ -62,22 +72,30 @@ export default function ServicesPage({ addToCart }) {
           return (
             <Box key={section} mb={6}>
               <Stack direction="row" alignItems="center" gap={1.5} mb={3}>
-                <Box
-                  sx={{
-                    width: 4,
-                    height: 28,
-                    bgcolor: 'secondary.main',
-                    borderRadius: 2,
-                  }}
-                />
-                <Typography variant="h5" sx={{ fontWeight: 700 }}>
-                  {section}
-                </Typography>
-                <Chip
-                  label={`${items.length} services`}
-                  size="small"
-                  sx={{ fontSize: '0.72rem' }}
-                />
+                <Stack
+                  direction="row"
+                  gap={1.5}
+                  mb={4}
+                  sx={{ flexWrap: 'wrap', rowGap: 1.5, m: 3 }}
+                >
+                  <Box
+                    sx={{
+                      width: 4,
+                      height: 28,
+                      bgcolor: 'secondary.main',
+                      borderRadius: 2,
+                      mb: 1.5,
+                    }}
+                  />
+                  <Typography variant="h5" sx={{ fontWeight: 700 }}>
+                    {section}
+                  </Typography>
+                  <Chip
+                    label={`${items.length} services`}
+                    size="small"
+                    sx={{ fontSize: '0.72rem' }}
+                  />
+                </Stack>
               </Stack>
 
               <Grid container spacing={3}>

@@ -42,8 +42,8 @@ import {
   HandymanOutlined,
 } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
-import { useThemeMode } from '../../../context/ThemeContext.jsx'
-import { styles } from './Settings.styles.js'
+import { useThemeMode } from '../../../context/themeContext.js'
+import { styles } from './settings.styles.js'
 
 const MOCK_USER = {
   fullName: 'Abdul Qudoos',
@@ -100,8 +100,6 @@ export default function Settings() {
     severity: 'success',
   })
   const [editingAccount, setEditingAccount] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-
   const [accountForm, setAccountForm] = useState({
     fullName: MOCK_USER.fullName,
     username: MOCK_USER.username,
@@ -516,35 +514,16 @@ export default function Settings() {
                 Change Password
               </Typography>
               <Stack spacing={2.5}>
-                <TextField
-                  label="Current password"
-                  type={showPassword ? 'text' : 'password'}
-                  fullWidth
-                  slotProps={{
-                    input: {
-                      endAdornment: (
-                        <IconButton
-                          size="small"
-                          onClick={() => setShowPassword((p) => !p)}
-                        >
-                          {showPassword ? (
-                            <VisibilityOffOutlined fontSize="small" />
-                          ) : (
-                            <VisibilityOutlined fontSize="small" />
-                          )}
-                        </IconButton>
-                      ),
-                    },
-                  }}
-                />
-                <TextField label="New password" type="password" fullWidth />
-                <TextField label="Confirm password" type="password" fullWidth />
+                <Typography variant="body2" color="text.secondary">
+                  Update your password to keep your account secure.
+                </Typography>
                 <Button
                   variant="contained"
                   color="primary"
+                  onClick={() => navigate('/forgot-password')}
                   sx={{ alignSelf: 'flex-start' }}
                 >
-                  Update Password
+                  Change Password
                 </Button>
               </Stack>
             </Paper>

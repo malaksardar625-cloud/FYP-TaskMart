@@ -13,11 +13,12 @@ export const styles = {
     borderColor: 'divider',
     display: { xs: 'none', md: 'flex' },
     flexDirection: 'column',
-    p: 3,
+    p: 1.5,
     position: 'sticky',
     top: 0,
     height: '100vh',
     overflowY: 'auto',
+    overflow: 'hidden',
   },
 
   logoMark: {
