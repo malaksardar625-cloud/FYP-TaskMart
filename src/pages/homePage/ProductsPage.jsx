@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Box, Chip, Container, Grid, Stack, Typography } from '@mui/material'
 
 import { ItemCard, CouponBanner, Footer } from '../../components/shared'
+import Navbar from '../../components/Navbar'
+
 import productsData from '../../mockData/products.json'
 
 // All unique categories derived from data (keeps it DRY)
@@ -18,6 +20,7 @@ export default function ProductsPage({ addToCart }) {
 
   return (
     <Box>
+      <Navbar />
       {/* ── Page Header ─────────────────────────────────────── */}
       <Box
         sx={{

@@ -80,7 +80,7 @@ export default function ProfileSetup() {
         formData.append('file', data.profileImage[0])
       }
 
-      const response = await fetch('/api/profile/base', {
+      const response = await fetch('http://localhost:5000/api/profile/base', {
         method: 'POST',
         credentials: 'include',
         body: formData,

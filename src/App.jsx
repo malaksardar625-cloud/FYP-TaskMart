@@ -7,10 +7,12 @@ import VerifyOtp from './pages/auth/verifyOtp.jsx'
 import ResetPassword from './pages/auth/resetPassword.jsx'
 import Dashboard from './pages/dashboard/Dashboard.jsx'
 import Settings from './pages/dashboard/sidebar/settings.jsx'
-import NotificationsPage from './pages/dashboard/notifications/notificationsPage.jsx'
+import ProfilePage from './components/profilePage.jsx'
 import HomePage from './pages/homePage/homePage.jsx'
 import ProductsPage from './pages/homePage/productsPage.jsx'
 import ServicesPage from './pages/homePage/servicesPage.jsx'
+import BecomeProductSeller from './pages/dashboard/sidebar/becomeSeller.jsx'
+import BecomeServiceProvider from './pages/dashboard/sidebar/becomeProvider.jsx'
 
 export default function App() {
   return (
@@ -25,10 +27,18 @@ export default function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/settings" element={<Settings />} />
-        <Route path="/notifications" element={<NotificationsPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/products" element={<ProductsPage />} />
         <Route path="/services" element={<ServicesPage />} />
+        <Route
+          path="/settings/become-seller"
+          element={<BecomeProductSeller />}
+        />
+        <Route
+          path="/settings/become-provider"
+          element={<BecomeServiceProvider />}
+        />
         <Route
           path="/home"
           element={<HomePage setPage={null} addToCart={null} />}

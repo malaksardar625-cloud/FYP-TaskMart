@@ -141,3 +141,26 @@ export const styles = {
     display: 'flex',
   },
 }
+
+export const hideScrollbar = {
+  scrollbarWidth: 'thin', // Firefox
+  scrollbarColor: 'transparent transparent',
+
+  '&::-webkit-scrollbar': {
+    width: '6px',
+    height: '6px',
+  },
+
+  '&::-webkit-scrollbar-track': {
+    background: 'transparent',
+  },
+
+  '&::-webkit-scrollbar-thumb': {
+    background: 'transparent',
+    borderRadius: '10px',
+  },
+
+  '&:hover::-webkit-scrollbar-thumb': {
+    background: '#b3b8af',
+  },
+}

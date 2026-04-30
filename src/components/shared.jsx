@@ -36,7 +36,6 @@ import {
   Storefront,
   FavoriteBorder,
   Facebook,
-  Twitter,
   Instagram,
   LinkedIn,
   LocationOn,
@@ -96,7 +95,13 @@ const CONTACT_ITEMS = [
   { Icon: Email, text: 'support@taskmart.pk' },
 ]
 
-const SOCIAL_ICONS = [Facebook, Twitter, Instagram, LinkedIn]
+const XIcon = () => (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.253 5.622L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z" />
+  </svg>
+)
+
+const SOCIAL_ICONS = [Facebook, XIcon, Instagram, LinkedIn]
 
 const LEGAL_LINKS = ['Terms', 'Privacy', 'Cookies']
 
@@ -433,7 +438,7 @@ export function CouponBanner() {
       </Stack>
       <Grid container spacing={2}>
         {couponsData.map((c) => (
-          <Grid item xs={12} sm={6} md={3} key={c.code}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }} key={c.code}>
             <Box
               sx={{
                 bgcolor: 'rgba(255,255,255,0.12)',
@@ -479,7 +484,7 @@ export function Footer() {
       <Container maxWidth="xl">
         <Grid container spacing={5} mb={5}>
           {/* Brand */}
-          <Grid item xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Logo />
             <Typography sx={S.footerDesc}>
               Pakistan's leading marketplace for products and services. Buy,
@@ -496,7 +501,7 @@ export function Footer() {
 
           {/* Link columns */}
           {FOOTER_COLUMNS.map((col) => (
-            <Grid item xs={6} md={2} key={col.title}>
+            <Grid size={{ xs: 6, md: 2 }} key={col.title}>
               <Typography variant="subtitle1" sx={S.footerColTitle}>
                 {col.title}
               </Typography>
@@ -511,7 +516,7 @@ export function Footer() {
           ))}
 
           {/* Contact */}
-          <Grid item xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Typography variant="subtitle1" sx={S.footerColTitle}>
               Contact Us
             </Typography>
@@ -567,7 +572,7 @@ export function Footer() {
 
 export function Logo({ size = 'h5' }) {
   return (
-    <Stack direction="row" alignItems="center" spacing={1}>
+    <Stack direction="row" sx={{ alignItems: 'center' }} spacing={1}>
       <Box
         sx={{
           width: 36,

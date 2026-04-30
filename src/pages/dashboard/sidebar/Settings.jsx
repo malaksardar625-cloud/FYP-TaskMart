@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   Box,
   Paper,
@@ -10,7 +10,6 @@ import {
   Button,
   TextField,
   IconButton,
-  Chip,
   List,
   ListItem,
   ListItemText,
@@ -18,8 +17,8 @@ import {
   Alert,
   Snackbar,
   Radio,
-  RadioGroup,
-  FormControlLabel,
+  Chip,
+  CircularProgress,
 } from '@mui/material'
 import {
   ArrowBackOutlined,
@@ -35,50 +34,25 @@ import {
   SaveOutlined,
   EmailOutlined,
   PhoneOutlined,
-  VisibilityOutlined,
-  VisibilityOffOutlined,
   ShoppingBagOutlined,
   StorefrontOutlined,
   HandymanOutlined,
+  CheckCircleOutlined,
+  ArrowForwardOutlined,
+  BadgeOutlined,
 } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
 import { useThemeMode } from '../../../context/themeContext.js'
+import { useContext } from 'react'
+import { AuthContext } from '../../../context/authContext.js'
 import { styles } from './settings.styles.js'
 
-const MOCK_USER = {
-  fullName: 'Abdul Qudoos',
-  username: 'abdulq',
-  email: 'abdulq@example.com',
-  phone: '+92 300 1234567',
-  role: 'buyer',
-  country: 'Pakistan',
-  bio: 'Buyer on TaskMart',
-}
-
-const ROLE_OPTIONS = [
-  {
-    value: 'buyer',
-    label: 'Buyer',
-    desc: 'Browse and purchase',
-    icon: <ShoppingBagOutlined />,
-  },
-  {
-    value: 'productSeller',
-    label: 'Product Seller',
-    desc: 'List and sell products',
-    icon: <StorefrontOutlined />,
-  },
-  {
-    value: 'serviceProvider',
-    label: 'Service Provider',
-    desc: 'Offer services',
-    icon: <HandymanOutlined />,
-  },
-]
+const API_BASE = import.meta.env.VITE_API_URL || ''
 
 const SECTION_NAV = [
   { id: 'appearance', label: 'Appearance', icon: <PaletteOutlined /> },
   { id: 'account', label: 'Account', icon: <PersonOutlined /> },
+  { id: 'roles', label: 'Roles', icon: <BadgeOutlined /> },
   {
     id: 'notifications',
     label: 'Notifications',
@@ -91,6 +65,7 @@ const SECTION_NAV = [
 export default function Settings() {
   const navigate = useNavigate()
   const { mode, toggleMode, resolvedMode } = useThemeMode()
+  const { user } = useContext(AuthContext)
 
   const [activeSection, setActiveSection] = useState('appearance')
   const [themeChoice, setThemeChoice] = useState(mode)
@@ -101,12 +76,17 @@ export default function Settings() {
   })
   const [editingAccount, setEditingAccount] = useState(false)
   const [accountForm, setAccountForm] = useState({
-    fullName: MOCK_USER.fullName,
-    username: MOCK_USER.username,
-    email: MOCK_USER.email,
-    phone: MOCK_USER.phone,
-    bio: MOCK_USER.bio,
+    fullName: user?.fullName || '',
+    username: user?.username || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    bio: user?.bio || '',
   })
+
+  // ── Roles state ──────────────────────────────────────────────
+  const [sellerProfile, setSellerProfile] = useState(null)
+  const [providerProfile, setProviderProfile] = useState(null)
+  const [rolesLoading, setRolesLoading] = useState(false)
 
   const [notifications, setNotifications] = useState({
     orderUpdates: true,
@@ -124,36 +104,82 @@ export default function Settings() {
     allowMessages: true,
   })
 
-  const showSnackbar = (message, severity = 'success') => {
+  // ── Helpers ───────────────────────────────────────────────────
+  const showSnackbar = (message, severity = 'success') =>
     setSnackbar({ open: true, message, severity })
-  }
 
+  // ── Fetch role profiles ───────────────────────────────────────
+  const fetchRoleProfiles = useCallback(async () => {
+    if (!user?._id) return
+    setRolesLoading(true)
+    try {
+      const [sellerRes, providerRes] = await Promise.allSettled([
+        fetch(`http://localhost:5000/api/sellers/me`, {
+          credentials: 'include',
+        }),
+        fetch(`http://localhost:5000/api/providers?user=${user._id}`, {
+          credentials: 'include',
+        }),
+      ])
+
+      if (sellerRes.status === 'fulfilled' && sellerRes.value.ok) {
+        const data = await sellerRes.value.json()
+        setSellerProfile(data?.data || data || null)
+      }
+      if (providerRes.status === 'fulfilled' && providerRes.value.ok) {
+        const data = await providerRes.value.json()
+        setProviderProfile(data?.data || data || null)
+      }
+    } catch {
+      /* profiles simply not found — leave null */
+    } finally {
+      setRolesLoading(false)
+    }
+  }, [user?._id])
+
+  useEffect(() => {
+    if (activeSection === 'roles') fetchRoleProfiles()
+  }, [activeSection, fetchRoleProfiles])
+
+  // ── Theme ─────────────────────────────────────────────────────
   const handleThemeChange = (value) => {
     setThemeChoice(value)
     toggleMode(value)
     showSnackbar('Appearance updated')
   }
 
-  const handleSaveAccount = () => {
-    setEditingAccount(false)
-    showSnackbar('Account details saved')
+  // ── Account ───────────────────────────────────────────────────
+  const handleSaveAccount = async () => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/users/${user._id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(accountForm),
+      })
+      if (!res.ok) throw new Error()
+      setEditingAccount(false)
+      showSnackbar('Account details saved')
+    } catch {
+      showSnackbar('Failed to save account details', 'error')
+    }
   }
 
   const handleNotificationToggle = (key) => {
-    setNotifications((prev) => ({ ...prev, [key]: !prev[key] }))
+    setNotifications((p) => ({ ...p, [key]: !p[key] }))
     showSnackbar('Notification preference updated')
   }
 
   const handlePrivacyToggle = (key) => {
-    setPrivacy((prev) => ({ ...prev, [key]: !prev[key] }))
+    setPrivacy((p) => ({ ...p, [key]: !p[key] }))
     showSnackbar('Privacy setting updated')
   }
 
+  // ─────────────────────────────────────────────────────────────
   return (
     <Box sx={styles.root}>
       {/* ── Sidebar ── */}
       <Box sx={styles.sidebar}>
-        {/* Back button */}
         <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 3 }}>
           <IconButton size="small" onClick={() => navigate('/dashboard')}>
             <ArrowBackOutlined fontSize="small" />
@@ -167,7 +193,6 @@ export default function Settings() {
           Settings
         </Typography>
 
-        {/* Section nav */}
         <Stack spacing={0.5}>
           {SECTION_NAV.map((section) => (
             <Box
@@ -210,23 +235,17 @@ export default function Settings() {
         {/* ══ APPEARANCE ══ */}
         {activeSection === 'appearance' && (
           <Box>
-            <>
-              <Typography
-                variant="h5"
-                fontWeight={700}
-                color="text.primary"
-                mb={0.5}
-              >
-                Appearance
-              </Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ mb: 1.5 }}
-              >
-                Customize how TaskMart looks for you
-              </Typography>
-            </>
+            <Typography
+              variant="h5"
+              fontWeight={700}
+              color="text.primary"
+              mb={0.5}
+            >
+              Appearance
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+              Customize how TaskMart looks for you
+            </Typography>
 
             <Paper elevation={0} sx={styles.card}>
               <Typography
@@ -237,7 +256,6 @@ export default function Settings() {
               >
                 Theme
               </Typography>
-
               <Stack spacing={1.5}>
                 {[
                   {
@@ -257,7 +275,7 @@ export default function Settings() {
                     label: 'System',
                     desc: 'Follows your device settings',
                     icon: <SettingsBrightnessOutlined />,
-                  }, // ← add this
+                  },
                 ].map((option) => (
                   <Box
                     key={option.value}
@@ -310,8 +328,6 @@ export default function Settings() {
                   </Box>
                 ))}
               </Stack>
-
-              {/* Preview box */}
               <Box sx={styles.previewBox}>
                 <Stack
                   direction="row"
@@ -329,8 +345,7 @@ export default function Settings() {
                   )}
                   <Typography variant="caption" color="text.secondary">
                     Currently using <strong>{themeChoice}</strong> mode
-                    {themeChoice === 'system' && ` (${resolvedMode})`}{' '}
-                    {/* shows e.g. "system (dark)" */}
+                    {themeChoice === 'system' && ` (${resolvedMode})`}
                   </Typography>
                 </Stack>
               </Box>
@@ -353,16 +368,13 @@ export default function Settings() {
               Manage your personal information
             </Typography>
 
-            {/* Profile card */}
             <Paper elevation={0} sx={{ ...styles.card, mb: 2.5 }}>
               <Stack
                 direction="row"
                 spacing={2}
                 sx={{ alignItems: 'center', mb: 3 }}
               >
-                <Avatar sx={styles.profileAvatar}>
-                  {MOCK_USER.fullName[0]}
-                </Avatar>
+                <Avatar sx={styles.profileAvatar}>{user?.fullName?.[0]}</Avatar>
                 <Box>
                   <Typography
                     variant="subtitle1"
@@ -393,30 +405,49 @@ export default function Settings() {
               </Stack>
 
               <Stack spacing={2.5}>
-                <TextField
-                  label="Full name"
-                  fullWidth
-                  value={accountForm.fullName}
-                  onChange={(e) =>
-                    setAccountForm((p) => ({ ...p, fullName: e.target.value }))
-                  }
-                  disabled={!editingAccount}
-                  slotProps={{
-                    input: {
-                      startAdornment: (
-                        <Box
-                          sx={{
-                            mr: 1,
-                            display: 'flex',
-                            color: 'text.secondary',
-                          }}
-                        >
-                          <PersonOutlined fontSize="small" />
-                        </Box>
-                      ),
-                    },
-                  }}
-                />
+                {[
+                  {
+                    label: 'Full name',
+                    key: 'fullName',
+                    icon: <PersonOutlined fontSize="small" />,
+                  },
+                  {
+                    label: 'Email address',
+                    key: 'email',
+                    icon: <EmailOutlined fontSize="small" />,
+                  },
+                  {
+                    label: 'Phone number',
+                    key: 'phone',
+                    icon: <PhoneOutlined fontSize="small" />,
+                  },
+                ].map((f) => (
+                  <TextField
+                    key={f.key}
+                    label={f.label}
+                    fullWidth
+                    value={accountForm[f.key]}
+                    onChange={(e) =>
+                      setAccountForm((p) => ({ ...p, [f.key]: e.target.value }))
+                    }
+                    disabled={!editingAccount}
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <Box
+                            sx={{
+                              mr: 1,
+                              display: 'flex',
+                              color: 'text.secondary',
+                            }}
+                          >
+                            {f.icon}
+                          </Box>
+                        ),
+                      },
+                    }}
+                  />
+                ))}
                 <TextField
                   label="Username"
                   fullWidth
@@ -442,54 +473,6 @@ export default function Settings() {
                   }}
                 />
                 <TextField
-                  label="Email address"
-                  fullWidth
-                  value={accountForm.email}
-                  onChange={(e) =>
-                    setAccountForm((p) => ({ ...p, email: e.target.value }))
-                  }
-                  disabled={!editingAccount}
-                  slotProps={{
-                    input: {
-                      startAdornment: (
-                        <Box
-                          sx={{
-                            mr: 1,
-                            display: 'flex',
-                            color: 'text.secondary',
-                          }}
-                        >
-                          <EmailOutlined fontSize="small" />
-                        </Box>
-                      ),
-                    },
-                  }}
-                />
-                <TextField
-                  label="Phone number"
-                  fullWidth
-                  value={accountForm.phone}
-                  onChange={(e) =>
-                    setAccountForm((p) => ({ ...p, phone: e.target.value }))
-                  }
-                  disabled={!editingAccount}
-                  slotProps={{
-                    input: {
-                      startAdornment: (
-                        <Box
-                          sx={{
-                            mr: 1,
-                            display: 'flex',
-                            color: 'text.secondary',
-                          }}
-                        >
-                          <PhoneOutlined fontSize="small" />
-                        </Box>
-                      ),
-                    },
-                  }}
-                />
-                <TextField
                   label="Bio"
                   fullWidth
                   multiline
@@ -503,7 +486,6 @@ export default function Settings() {
               </Stack>
             </Paper>
 
-            {/* Change password */}
             <Paper elevation={0} sx={styles.card}>
               <Typography
                 variant="subtitle1"
@@ -513,43 +495,403 @@ export default function Settings() {
               >
                 Change Password
               </Typography>
-              <Stack spacing={2.5}>
-                <Typography variant="body2" color="text.secondary">
-                  Update your password to keep your account secure.
-                </Typography>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => navigate('/forgot-password')}
-                  sx={{ alignSelf: 'flex-start' }}
-                >
-                  Change Password
-                </Button>
-              </Stack>
+              <Typography variant="body2" color="text.secondary" mb={2}>
+                Update your password to keep your account secure.
+              </Typography>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => navigate('/forgot-password')}
+                sx={{ alignSelf: 'flex-start' }}
+              >
+                Change Password
+              </Button>
             </Paper>
+          </Box>
+        )}
+
+        {/* ══ ROLES ══ */}
+        {activeSection === 'roles' && (
+          <Box>
+            <Typography
+              variant="h5"
+              fontWeight={700}
+              color="text.primary"
+              mb={0.5}
+            >
+              Roles
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              Expand your presence on TaskMart by becoming a seller or service
+              provider
+            </Typography>
+
+            {rolesLoading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+                <CircularProgress />
+              </Box>
+            ) : (
+              <Stack spacing={2.5}>
+                {/* ── Product Seller Card ── */}
+                <Paper
+                  elevation={0}
+                  sx={{
+                    ...styles.card,
+                    border: '1px solid',
+                    borderColor: sellerProfile ? 'success.main' : 'divider',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    transition: 'border-color 0.2s',
+                  }}
+                >
+                  {/* accent bar */}
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: 4,
+                      height: '100%',
+                      bgcolor: sellerProfile ? 'success.main' : 'primary.main',
+                      borderRadius: '4px 0 0 4px',
+                    }}
+                  />
+
+                  <Stack
+                    direction="row"
+                    spacing={2}
+                    sx={{ alignItems: 'flex-start' }}
+                  >
+                    <Box
+                      sx={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: 2,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        bgcolor: sellerProfile
+                          ? 'success.light'
+                          : 'primary.light',
+                        color: sellerProfile ? 'success.main' : 'primary.main',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <StorefrontOutlined />
+                    </Box>
+
+                    <Box sx={{ flex: 1 }}>
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        alignItems="center"
+                        mb={0.5}
+                      >
+                        <Typography
+                          variant="subtitle1"
+                          fontWeight={700}
+                          color="text.primary"
+                        >
+                          Product Seller
+                        </Typography>
+                        {sellerProfile && (
+                          <Chip
+                            icon={<CheckCircleOutlined sx={{ fontSize: 14 }} />}
+                            label={
+                              sellerProfile.isApproved
+                                ? 'Approved'
+                                : 'Pending Approval'
+                            }
+                            color={
+                              sellerProfile.isApproved ? 'success' : 'warning'
+                            }
+                            size="small"
+                            sx={{ fontWeight: 600, fontSize: '0.7rem' }}
+                          />
+                        )}
+                      </Stack>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        mb={1.5}
+                      >
+                        List physical or digital products, manage inventory, and
+                        process orders — all from one dashboard.
+                      </Typography>
+
+                      {sellerProfile ? (
+                        <Box>
+                          <Divider sx={{ mb: 1.5 }} />
+                          <Stack spacing={0.5}>
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
+                              <strong>Shop name:</strong>{' '}
+                              {sellerProfile.shopName}
+                            </Typography>
+                            {sellerProfile.shopDescription && (
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                                sx={{
+                                  display: '-webkit-box',
+                                  WebkitLineClamp: 2,
+                                  WebkitBoxOrient: 'vertical',
+                                  overflow: 'hidden',
+                                }}
+                              >
+                                <strong>Description:</strong>{' '}
+                                {sellerProfile.shopDescription}
+                              </Typography>
+                            )}
+                          </Stack>
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            startIcon={<EditOutlined />}
+                            onClick={() => navigate('/settings/seller')}
+                            sx={{ mt: 2 }}
+                          >
+                            Manage Shop
+                          </Button>
+                        </Box>
+                      ) : (
+                        <Stack direction="row" spacing={1.5} flexWrap="wrap">
+                          {[
+                            'Set up a shop',
+                            'Upload product listings',
+                            'Track orders',
+                          ].map((f) => (
+                            <Stack
+                              key={f}
+                              direction="row"
+                              spacing={0.5}
+                              alignItems="center"
+                            >
+                              <CheckCircleOutlined
+                                sx={{ fontSize: 14, color: 'text.disabled' }}
+                              />
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                              >
+                                {f}
+                              </Typography>
+                            </Stack>
+                          ))}
+                        </Stack>
+                      )}
+                    </Box>
+
+                    {!sellerProfile && (
+                      <Button
+                        variant="contained"
+                        size="small"
+                        endIcon={<ArrowForwardOutlined />}
+                        onClick={() => navigate('/settings/become-seller')}
+                        sx={{ flexShrink: 0 }}
+                      >
+                        Get Started
+                      </Button>
+                    )}
+                  </Stack>
+                </Paper>
+
+                {/* ── Service Provider Card ── */}
+                <Paper
+                  elevation={0}
+                  sx={{
+                    ...styles.card,
+                    border: '1px solid',
+                    borderColor: providerProfile ? 'success.main' : 'divider',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    transition: 'border-color 0.2s',
+                  }}
+                >
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: 4,
+                      height: '100%',
+                      bgcolor: providerProfile
+                        ? 'success.main'
+                        : 'secondary.main',
+                      borderRadius: '4px 0 0 4px',
+                    }}
+                  />
+
+                  <Stack
+                    direction="row"
+                    spacing={2}
+                    sx={{ alignItems: 'flex-start' }}
+                  >
+                    <Box
+                      sx={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: 2,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        bgcolor: providerProfile
+                          ? 'success.light'
+                          : 'secondary.light',
+                        color: providerProfile
+                          ? 'success.main'
+                          : 'secondary.main',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <HandymanOutlined />
+                    </Box>
+
+                    <Box sx={{ flex: 1 }}>
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        alignItems="center"
+                        mb={0.5}
+                      >
+                        <Typography
+                          variant="subtitle1"
+                          fontWeight={700}
+                          color="text.primary"
+                        >
+                          Service Provider
+                        </Typography>
+                        {providerProfile && (
+                          <Chip
+                            icon={<CheckCircleOutlined sx={{ fontSize: 14 }} />}
+                            label={
+                              providerProfile.isApproved
+                                ? 'Approved'
+                                : 'Pending Approval'
+                            }
+                            color={
+                              providerProfile.isApproved ? 'success' : 'warning'
+                            }
+                            size="small"
+                            sx={{ fontWeight: 600, fontSize: '0.7rem' }}
+                          />
+                        )}
+                      </Stack>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        mb={1.5}
+                      >
+                        Offer your expertise as a freelancer or agency. Set your
+                        own rates and connect with clients looking for your
+                        skills.
+                      </Typography>
+
+                      {providerProfile ? (
+                        <Box>
+                          <Divider sx={{ mb: 1.5 }} />
+                          <Stack spacing={0.5}>
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
+                              <strong>Title:</strong> {providerProfile.title}
+                            </Typography>
+                            <Stack
+                              direction="row"
+                              spacing={0.5}
+                              flexWrap="wrap"
+                            >
+                              {providerProfile.skills?.slice(0, 4).map((s) => (
+                                <Chip
+                                  key={s}
+                                  label={s}
+                                  size="small"
+                                  sx={{ fontSize: '0.68rem', height: 20 }}
+                                />
+                              ))}
+                              {providerProfile.skills?.length > 4 && (
+                                <Chip
+                                  label={`+${providerProfile.skills.length - 4}`}
+                                  size="small"
+                                  sx={{ fontSize: '0.68rem', height: 20 }}
+                                />
+                              )}
+                            </Stack>
+                          </Stack>
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            startIcon={<EditOutlined />}
+                            onClick={() => navigate('/settings/provider')}
+                            sx={{ mt: 2 }}
+                          >
+                            Manage Profile
+                          </Button>
+                        </Box>
+                      ) : (
+                        <Stack direction="row" spacing={1.5} flexWrap="wrap">
+                          {[
+                            'Create a profile',
+                            'Add your skills',
+                            'Receive service requests',
+                          ].map((f) => (
+                            <Stack
+                              key={f}
+                              direction="row"
+                              spacing={0.5}
+                              alignItems="center"
+                            >
+                              <CheckCircleOutlined
+                                sx={{ fontSize: 14, color: 'text.disabled' }}
+                              />
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                              >
+                                {f}
+                              </Typography>
+                            </Stack>
+                          ))}
+                        </Stack>
+                      )}
+                    </Box>
+
+                    {!providerProfile && (
+                      <Button
+                        variant="contained"
+                        color="secondary"
+                        size="small"
+                        endIcon={<ArrowForwardOutlined />}
+                        onClick={() => navigate('/settings/become-provider')}
+                        sx={{ flexShrink: 0 }}
+                      >
+                        Get Started
+                      </Button>
+                    )}
+                  </Stack>
+                </Paper>
+              </Stack>
+            )}
           </Box>
         )}
 
         {/* ══ NOTIFICATIONS ══ */}
         {activeSection === 'notifications' && (
           <Box>
-            <>
-              <Typography
-                variant="h5"
-                fontWeight={700}
-                color="text.primary"
-                mb={0.5}
-              >
-                Notifications
-              </Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ mb: 1.5 }}
-              >
-                Choose what you want to be notified about
-              </Typography>
-            </>
+            <Typography
+              variant="h5"
+              fontWeight={700}
+              color="text.primary"
+              mb={0.5}
+            >
+              Notifications
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+              Choose what you want to be notified about
+            </Typography>
 
             <Paper elevation={0} sx={styles.card}>
               <Typography
@@ -585,7 +927,7 @@ export default function Settings() {
                     label: 'System alerts',
                     desc: 'Important platform announcements and updates',
                   },
-                ].map((item, index, arr) => (
+                ].map((item, i, arr) => (
                   <Box key={item.key}>
                     <ListItem disablePadding sx={{ py: 1.5 }}>
                       <ListItemText
@@ -612,7 +954,7 @@ export default function Settings() {
                         />
                       </ListItemSecondaryAction>
                     </ListItem>
-                    {index < arr.length - 1 && <Divider />}
+                    {i < arr.length - 1 && <Divider />}
                   </Box>
                 ))}
               </List>
@@ -642,7 +984,7 @@ export default function Settings() {
                     label: 'Weekly digest',
                     desc: 'A summary of activity sent every Monday',
                   },
-                ].map((item, index, arr) => (
+                ].map((item, i, arr) => (
                   <Box key={item.key}>
                     <ListItem disablePadding sx={{ py: 1.5 }}>
                       <ListItemText
@@ -669,7 +1011,7 @@ export default function Settings() {
                         />
                       </ListItemSecondaryAction>
                     </ListItem>
-                    {index < arr.length - 1 && <Divider />}
+                    {i < arr.length - 1 && <Divider />}
                   </Box>
                 ))}
               </List>
@@ -680,23 +1022,17 @@ export default function Settings() {
         {/* ══ PRIVACY ══ */}
         {activeSection === 'privacy' && (
           <Box>
-            <>
-              <Typography
-                variant="h5"
-                fontWeight={700}
-                color="text.primary"
-                mb={0.5}
-              >
-                Privacy
-              </Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ mb: 1.5 }}
-              >
-                Control your visibility and data sharing
-              </Typography>
-            </>
+            <Typography
+              variant="h5"
+              fontWeight={700}
+              color="text.primary"
+              mb={0.5}
+            >
+              Privacy
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+              Control your visibility and data sharing
+            </Typography>
 
             <Paper elevation={0} sx={styles.card}>
               <List disablePadding>
@@ -721,7 +1057,7 @@ export default function Settings() {
                     label: 'Allow messages',
                     desc: 'Let other users send you direct messages',
                   },
-                ].map((item, index, arr) => (
+                ].map((item, i, arr) => (
                   <Box key={item.key}>
                     <ListItem disablePadding sx={{ py: 1.5 }}>
                       <ListItemText
@@ -748,7 +1084,7 @@ export default function Settings() {
                         />
                       </ListItemSecondaryAction>
                     </ListItem>
-                    {index < arr.length - 1 && <Divider />}
+                    {i < arr.length - 1 && <Divider />}
                   </Box>
                 ))}
               </List>
@@ -759,23 +1095,17 @@ export default function Settings() {
         {/* ══ Account Actions ══ */}
         {activeSection === 'danger' && (
           <Box>
-            <>
-              <Typography
-                variant="h5"
-                fontWeight={700}
-                color="text.primary"
-                mb={0.5}
-              >
-                Account Actions
-              </Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ mb: 1.5 }}
-              >
-                Irreversible actions — proceed with caution
-              </Typography>
-            </>
+            <Typography
+              variant="h5"
+              fontWeight={700}
+              color="text.primary"
+              mb={0.5}
+            >
+              Account Actions
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+              Irreversible actions — proceed with caution
+            </Typography>
 
             <Paper
               elevation={0}
@@ -807,9 +1137,7 @@ export default function Settings() {
                     Deactivate Account
                   </Button>
                 </Box>
-
                 <Divider />
-
                 <Box>
                   <Typography
                     variant="subtitle1"

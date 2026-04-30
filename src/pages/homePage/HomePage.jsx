@@ -23,14 +23,14 @@ import {
   LocalOffer,
 } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
+import { useNavigate } from 'react-router-dom'
 
+import { useCountUp } from '../../hooks/useCountUp'
 import { ItemCard, Footer } from '../../components/shared.jsx'
-import { Navbar } from '../../components/Navbar.jsx'
 import productsData from '../../mockData/Products.json'
 import servicesData from '../../mockData/services.json'
-import { useNavigate } from 'react-router-dom'
 import { useResponsive } from '../../hooks/useResponsive.js'
-import { useCountUp } from '../../hooks/useCountUp.js'
+import Navbar from '../../components/Navbar'
 
 import {
   globalKeyframes,
@@ -120,12 +120,12 @@ const WHY_CARDS = [
 // ── STAT ITEM ─────────────────────────────────────────────────
 
 function StatItem({ stat }) {
-  const { count, ref } = useCountUp(stat.end)
+  const count = useCountUp(stat.end)
   const { isWatch } = useResponsive()
   const theme = useTheme()
 
   return (
-    <Box ref={ref} sx={statItem}>
+    <Box sx={statItem}>
       <Typography
         variant={isWatch ? 'h6' : 'h4'}
         sx={{
@@ -152,7 +152,7 @@ function StatItem({ stat }) {
   )
 }
 
-// ── SECTION HEADER ─────────────────────────────────────────────
+// ── SECTION HEADER ────────────────────────────────────────────
 
 function SectionHeader({
   chip,
@@ -164,12 +164,11 @@ function SectionHeader({
   light = false,
 }) {
   const theme = useTheme()
+
   return (
     <Stack
       direction={{ xs: 'column', sm: 'row' }}
-      justifyContent="space-between"
-      mb={5}
-      gap={2}
+      sx={{ justifyContent: 'space-between', mb: 5, gap: 2 }}
     >
       <Box>
         <Chip
@@ -226,13 +225,11 @@ export default function HomePage({ setPage, addToCart }) {
   const overlay = darkOverlay(theme, isDark ? 0.88 : 0.78)
   const pad = sectionPad(isWatch)
 
-  const colProps = (xs = 12, sm = 6, md = 4) => ({
-    item: true,
-    xs: isWatch ? 12 : xs,
-    sm,
-    md,
-    sx: { display: 'flex' },
-  })
+  const colSize = isWatch ? 12 : 4
+
+  const handleViewProducts = () => navigate('/products')
+  const handleViewServices = () => navigate('/services')
+  const handleJoin = () => navigate('/signup')
 
   return (
     <Box
@@ -242,26 +239,26 @@ export default function HomePage({ setPage, addToCart }) {
         overflowX: 'hidden',
       }}
     >
-      {/* Inject global keyframes once */}
       <GlobalStyles styles={globalKeyframes} />
 
-      {/* ── Navbar ─────────────────────────────────────── */}
+      {/* ── Navbar ───────────────────────────────────── */}
       <Navbar setPage={setPage} />
 
-      {/* ══════════════════════════════════════════════════
+      {/* ══════════════════════════════════════════════
           HERO
-      ══════════════════════════════════════════════════ */}
+      ══════════════════════════════════════════════ */}
       <Box sx={{ ...heroSection, ...pad }}>
         <Box sx={overlay} />
 
         <Container maxWidth="lg" sx={sectionContainer}>
-          <Grid size={12} alignItems="center" justifyContent="center">
+          <Grid
+            container
+            sx={{ alignItems: 'center', justifyContent: 'space-between' }}
+          >
             {/* Glass rating card */}
             {!isWatch && (
               <Grid
-                item
-                xs={12}
-                md={4}
+                size={{ xs: 12, md: 4 }}
                 sx={{
                   display: 'flex',
                   justifyContent: { xs: 'center', md: 'flex-start' },
@@ -295,7 +292,7 @@ export default function HomePage({ setPage, addToCart }) {
             )}
 
             {/* Headline + features */}
-            <Grid item xs={12} md={isWatch ? 12 : 8} sx={heroContent}>
+            <Grid size={{ xs: 12, md: isWatch ? 12 : 8 }} sx={heroContent}>
               <Chip
                 label="About TaskMart"
                 sx={{
@@ -340,14 +337,16 @@ export default function HomePage({ setPage, addToCart }) {
               </Typography>
 
               {/* Feature mini-cards */}
-              <Grid container spacing={2} mb={4}>
+              <Grid container spacing={2} sx={{ mb: 4 }}>
                 {ABOUT_FEATURES.map((f) => (
-                  <Grid item xs={isWatch ? 12 : 6} sm={6} key={f.title}>
+                  <Grid size={{ xs: isWatch ? 12 : 6, sm: 6 }} key={f.title}>
                     <Stack
                       direction="row"
-                      gap={1.5}
-                      alignItems="flex-start"
-                      sx={heroFeatureCard(theme)}
+                      sx={{
+                        alignItems: 'start',
+                        justifyContent: 'flex-start',
+                      }}
+                      style={heroFeatureCard(theme)}
                     >
                       <Box
                         sx={{
@@ -388,7 +387,7 @@ export default function HomePage({ setPage, addToCart }) {
                 color="primary"
                 size={isWatch ? 'small' : 'large'}
                 endIcon={!isWatch && <ArrowForward />}
-                onClick={() => navigate('/signup')}
+                onClick={handleJoin}
                 sx={{
                   ...ctaBtn(theme),
                   px: isWatch ? 2.5 : 5,
@@ -412,9 +411,9 @@ export default function HomePage({ setPage, addToCart }) {
         </Container>
       </Box>
 
-      {/* ══════════════════════════════════════════════════
+      {/* ══════════════════════════════════════════════
           PRODUCTS
-      ══════════════════════════════════════════════════ */}
+      ══════════════════════════════════════════════ */}
       <Box
         sx={{
           ...parallaxSection(
@@ -429,7 +428,7 @@ export default function HomePage({ setPage, addToCart }) {
             chip="Shop Now"
             title="Browse Products"
             subtitle="Discover the best deals on our wide range of products"
-            onViewAll={() => navigate('/products')}
+            onViewAll={handleViewProducts}
             isWatch={isWatch}
             isMobile={isMobile}
             light
@@ -437,7 +436,11 @@ export default function HomePage({ setPage, addToCart }) {
 
           <Grid container spacing={{ xs: 2, sm: 2.5, md: 3 }}>
             {productsData.slice(0, isWatch ? 2 : 6).map((p) => (
-              <Grid {...colProps()} key={p.id}>
+              <Grid
+                size={{ xs: 12, sm: 6, md: colSize }}
+                key={p.id}
+                sx={{ display: 'flex' }}
+              >
                 <Box sx={{ width: '100%' }}>
                   <ItemCard item={p} addToCart={addToCart} />
                 </Box>
@@ -502,9 +505,9 @@ export default function HomePage({ setPage, addToCart }) {
         </Container>
       </Box>
 
-      {/* ══════════════════════════════════════════════════
+      {/* ══════════════════════════════════════════════
           SERVICES
-      ══════════════════════════════════════════════════ */}
+      ══════════════════════════════════════════════ */}
       <Box
         sx={{
           ...parallaxSection(
@@ -519,7 +522,7 @@ export default function HomePage({ setPage, addToCart }) {
             chip="Hire Experts"
             title="Browse Services"
             subtitle="Top-rated professionals at your doorstep"
-            onViewAll={() => navigate('/services')}
+            onViewAll={handleViewServices}
             isWatch={isWatch}
             isMobile={isMobile}
             light
@@ -527,7 +530,11 @@ export default function HomePage({ setPage, addToCart }) {
 
           <Grid container spacing={{ xs: 2, sm: 2.5, md: 3 }}>
             {servicesData.slice(0, isWatch ? 2 : 6).map((s) => (
-              <Grid {...colProps()} key={s.id}>
+              <Grid
+                size={{ xs: 12, sm: 6, md: colSize }}
+                key={s.id}
+                sx={{ display: 'flex' }}
+              >
                 <Box sx={{ width: '100%' }}>
                   <ItemCard item={s} addToCart={addToCart} isService />
                 </Box>
@@ -584,9 +591,9 @@ export default function HomePage({ setPage, addToCart }) {
         </Container>
       </Box>
 
-      {/* ══════════════════════════════════════════════════
+      {/* ══════════════════════════════════════════════
           WHY TASKMART
-      ══════════════════════════════════════════════════ */}
+      ══════════════════════════════════════════════ */}
       <Box sx={{ ...pad, bgcolor: theme.palette.background.default }}>
         <Container maxWidth="lg">
           <Box sx={{ textAlign: 'center', mb: { xs: 4, md: 7 } }}>
@@ -606,7 +613,11 @@ export default function HomePage({ setPage, addToCart }) {
 
           <Grid container spacing={{ xs: 2, sm: 2.5, md: 3 }}>
             {WHY_CARDS.map((w) => (
-              <Grid {...colProps()} key={w.title}>
+              <Grid
+                size={{ xs: 12, sm: 6, md: colSize }}
+                key={w.title}
+                sx={{ display: 'flex' }}
+              >
                 <Box sx={whyCard(theme, isDark)}>
                   <Box sx={whyIconBox(theme, isDark, isWatch)}>{w.icon}</Box>
                   <Typography

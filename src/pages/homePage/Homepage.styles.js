@@ -1,10 +1,5 @@
 import { alpha } from '@mui/material/styles'
 
-// ─────────────────────────────────────────────────────────────
-// homeStyles.js
-// All sx / style objects consumed by HomePage.jsx.
-// Every value derives from the MUI theme — zero hard-coded colors.
-// ─────────────────────────────────────────────────────────────
 
 // ── SHARED KEYFRAMES (inject once via GlobalStyles in App) ────
 export const globalKeyframes = `
@@ -55,7 +50,7 @@ export const heroSection = {
   overflow: 'hidden',
   backgroundImage:
     'url(https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1400&q=80)',
-  backgroundSize: '110%',
+  backgroundSize: '100%',
   backgroundPosition: 'center',
   animation: 'heroBgZoom 14s ease-in-out infinite alternate',
 }
@@ -101,7 +96,7 @@ export const heroFeatureCard = (theme) => ({
 
 // ── STATS BAR ─────────────────────────────────────────────────
 export const statsBar = (theme) => ({
-  mt: { xs: 5, md: 8 },
+  mt: { xs: 5, md: 8, mt: 6 },
   bgcolor: theme.palette.primary.main,
   borderRadius: 3,
   overflow: 'hidden',
@@ -113,7 +108,7 @@ export const statItem = {
   textAlign: 'center',
   px: { xs: 1, sm: 3 },
   py: { xs: 2, sm: 3 },
-  flex: 1, // each cell stretches equally
+  flex: 1,
   borderRight: '1px solid rgba(255,255,255,0.18)',
   '&:last-of-type': { borderRight: 'none' },
 }

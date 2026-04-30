@@ -2,11 +2,10 @@ import { alpha } from '@mui/material/styles'
 
 // ── ROOT ─────────────────────────────────────────────────────
 export const navbarRoot = {
-  position: 'fixed',
+  position: 'sticky',
   top: 0,
-  left: 0,
-  right: 0,
-  zIndex: 1200,
+  zIndex: (theme) => theme.zIndex.appBar,
+  width: '100%',
   bgcolor: 'background.paper',
   borderBottom: '1px solid',
   borderColor: 'divider',
@@ -71,6 +70,14 @@ export const searchFilter = {
   color: 'text.secondary',
   fontSize: '0.75rem',
   fontWeight: 600,
+  '& .MuiSelect-select': { pr: '0 !important', py: 0 },
+}
+
+export const searchSubFilter = {
+  color: 'text.secondary',
+  fontSize: '0.75rem',
+  fontWeight: 500,
+  cursor: 'pointer',
   '& .MuiSelect-select': { pr: '0 !important', py: 0 },
 }
 
@@ -174,6 +181,89 @@ export const dashboardBtn = {
   display: { xs: 'none', sm: 'flex' },
   fontWeight: 700,
   px: 2.5,
+}
+
+// ── USER MENU ─────────────────────────────────────────────────
+export const userAvatarBtn = {
+  p: 0.5,
+  '&:hover': { bgcolor: 'action.hover' },
+}
+
+export const userAvatar = {
+  width: 36,
+  height: 36,
+  fontSize: '0.85rem',
+  fontWeight: 700,
+  bgcolor: 'primary.main',
+  color: 'primary.contrastText',
+  cursor: 'pointer',
+  transition: 'opacity 0.2s',
+  '&:hover': { opacity: 0.85 },
+}
+
+export const userPopover = {
+  width: 280,
+  borderRadius: 3,
+  mt: 1,
+  overflow: 'hidden',
+}
+
+export const userPopoverHeader = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 1.5,
+  px: 2,
+  py: 2,
+}
+
+export const userPopoverAvatar = {
+  width: 48,
+  height: 48,
+  fontSize: '1rem',
+  fontWeight: 700,
+  bgcolor: 'primary.main',
+  color: 'primary.contrastText',
+  flexShrink: 0,
+}
+
+export const userRoleBadge = {
+  display: 'inline-flex',
+  mt: 0.5,
+  px: 1,
+  py: 0.25,
+  borderRadius: 1,
+  bgcolor: 'primary.light',
+  color: 'primary.main',
+}
+
+export const userMenuList = {
+  py: 0.5,
+}
+
+export const userMenuItem = {
+  px: 2,
+  py: 1,
+  '&:hover': { bgcolor: 'action.hover' },
+}
+
+export const userMenuIcon = {
+  minWidth: 36,
+  color: 'text.secondary',
+}
+
+export const userMenuLogout = {
+  px: 2,
+  py: 1,
+  '&:hover': {
+    bgcolor: (theme) => alpha(theme.palette.error.main, 0.08),
+    '& .MuiListItemIcon-root': { color: 'error.main' },
+    '& .MuiListItemText-primary': { color: 'error.main' },
+  },
+}
+
+export const userMenuLogoutIcon = {
+  minWidth: 36,
+  color: 'text.secondary',
 }
 
 // ── FLOATING CART ─────────────────────────────────────────────

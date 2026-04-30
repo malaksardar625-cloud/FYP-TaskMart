@@ -25,13 +25,18 @@ import {
   LockOutlined,
   MarkEmailReadOutlined,
 } from '@mui/icons-material'
-import { Link as RouterLink } from 'react-router-dom'
+import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import { styles } from './auth.styles.js'
 import { signupSchema as schema } from './auth.schemas.js'
 import { Logo } from '../../components/shared.jsx'
 
-// ─── Email Sent Dialog ────────────────────────────────────────────────────────
+// ── EMAIL VERIFICATION DIALOG ─────────────────────────────────
+
 function EmailVerificationDialog({ open, email }) {
+  const navigate = useNavigate()
+
+  const handleGoToLogin = () => navigate('/login')
+
   return (
     <Dialog
       open={open}
@@ -111,13 +116,28 @@ function EmailVerificationDialog({ open, email }) {
           <Typography variant="caption" color="text.disabled">
             The link expires in 10 minutes.
           </Typography>
+
+          <Button
+            fullWidth
+            variant="contained"
+            onClick={handleGoToLogin}
+            sx={{
+              borderRadius: 2,
+              py: 1.2,
+              textTransform: 'none',
+              fontWeight: 600,
+            }}
+          >
+            Go to Login
+          </Button>
         </Stack>
       </DialogContent>
     </Dialog>
   )
 }
 
-// ─── SignUp ───────────────────────────────────────────────────────────────────
+// ── SIGNUP ────────────────────────────────────────────────────
+
 export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false)
   const [showRetype, setShowRetype] = useState(false)
@@ -130,6 +150,9 @@ export default function SignUp() {
     handleSubmit,
     formState: { errors },
   } = useForm({ resolver: joiResolver(schema) })
+
+  const handleTogglePassword = () => setShowPassword((p) => !p)
+  const handleToggleRetype = () => setShowRetype((p) => !p)
 
   const onSubmit = async (data) => {
     setLoading(true)
@@ -149,7 +172,6 @@ export default function SignUp() {
         setServerError(result.message || 'Signup failed.')
         return
       }
-      // ✅ Show the verification dialog instead of navigating
       setVerifyDialog({ open: true, email: data.email })
     } catch {
       setServerError('Network error. Please check your connection.')
@@ -202,7 +224,7 @@ export default function SignUp() {
             />
 
             <TextField
-              label="UserName"
+              label="Username"
               fullWidth
               {...register('userName')}
               error={!!errors.userName}
@@ -235,7 +257,7 @@ export default function SignUp() {
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton
-                        onClick={() => setShowPassword((p) => !p)}
+                        onClick={handleTogglePassword}
                         edge="end"
                         size="small"
                       >
@@ -264,7 +286,7 @@ export default function SignUp() {
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton
-                        onClick={() => setShowRetype((p) => !p)}
+                        onClick={handleToggleRetype}
                         edge="end"
                         size="small"
                       >
@@ -308,7 +330,7 @@ export default function SignUp() {
         </Paper>
       </Box>
 
-      {/* ✅ Email verification dialog — no close button, user must verify */}
+      {/* Dialog has no close button — user must click Go to Login */}
       <EmailVerificationDialog
         open={verifyDialog.open}
         email={verifyDialog.email}

@@ -1,8 +1,8 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import {
   Box,
   Stack,
-  Typography,
   InputBase,
   IconButton,
   Button,
@@ -11,10 +11,17 @@ import {
   Container,
   FormControl,
   Select,
-  AppBar,
-  Toolbar,
+  MenuItem,
   Snackbar,
   Alert,
+  Avatar,
+  Popover,
+  Divider,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Typography,
 } from '@mui/material'
 import {
   Search,
@@ -22,38 +29,57 @@ import {
   ShoppingBag,
   Build,
   Dashboard,
-  KeyboardArrowDown,
-  Storefront,
   Close,
+  Person,
+  Settings,
+  Logout,
+  Home,
 } from '@mui/icons-material'
+import { useNavigate, useLocation } from 'react-router-dom'
 
-import { PAGES } from './shared.jsx'
-import * as S from './styles.js'
+import LogoutButton from '../pages/dashboard/sidebar/logout.jsx'
 import { Logo } from './shared.jsx'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth'
+import * as S from './styles.js'
+
+// ── API ───────────────────────────────────────────────────────
+
+const fetchProfile = async () => {
+  const res = await fetch('http://localhost:5000/api/profile/base/byUser', {
+    credentials: 'include',
+  })
+  if (!res.ok) throw new Error('Not authenticated')
+  return res.json()
+}
 
 // ── DATA ──────────────────────────────────────────────────────
 
 const SEARCH_FILTERS = [
   { value: 'all', label: 'All' },
-  { value: 'user', label: 'Users' },
-  { value: 'product', label: 'Products' },
-  { value: 'service', label: 'Services' },
+  { value: 'users', label: 'Users' },
+  { value: 'products', label: 'Products' },
+  { value: 'services', label: 'Services' },
 ]
 
+// path replaces page — NavItem uses navigate(item.path) directly
 const NAV_ITEMS = [
   {
     label: 'Products',
     icon: <ShoppingBag fontSize="small" />,
-    page: PAGES.PRODUCTS,
-    submenu: ['All Products', 'Featured', 'New Arrivals', 'Flash Sales'],
+    path: '/products',
   },
   {
     label: 'Services',
     icon: <Build fontSize="small" />,
-    page: PAGES.SERVICES,
-    submenu: ['All Services', 'Home Repair', 'Tutoring', 'Digital Services'],
+    path: '/services',
+  },
+]
+
+const USER_MENU_ITEMS = [
+  { label: 'My Profile', icon: <Person fontSize="small" />, path: '/profile' },
+  {
+    label: 'Account Settings',
+    icon: <Settings fontSize="small" />,
+    path: '/settings',
   },
 ]
 
@@ -63,66 +89,25 @@ function SearchBar() {
   const [filter, setFilter] = useState('all')
   const [query, setQuery] = useState('')
 
+  const handleFilterChange = (e) => setFilter(e.target.value)
+  const handleQueryChange = (e) => setQuery(e.target.value)
+  const handleClear = () => setQuery('')
+
   return (
     <Paper elevation={0} sx={S.searchBar}>
       <FormControl variant="standard" sx={{ minWidth: 0 }}>
         <Select
           disableUnderline
           value={filter}
-          onChange={(e) => setFilter(e.target.value)}
+          onChange={handleFilterChange}
           IconComponent={() => null}
           sx={S.searchFilter}
         >
-          {SEARCH_FILTERS.map(
-            () =>
-              function NavDropdownItem({ item, setPage }) {
-                const [open, setOpen] = useState(false)
-                const closeTimer = useRef(null)
-
-                const handleEnter = () => {
-                  clearTimeout(closeTimer.current)
-                  setOpen(true)
-                }
-
-                const handleLeave = () => {
-                  closeTimer.current = setTimeout(() => setOpen(false), 120)
-                }
-
-                return (
-                  <Box
-                    sx={S.navItemWrapper}
-                    onMouseEnter={handleEnter}
-                    onMouseLeave={handleLeave}
-                  >
-                    <Button
-                      startIcon={item.icon}
-                      endIcon={<KeyboardArrowDown />}
-                      onClick={() => setPage(item.page)}
-                      sx={S.navBtn}
-                    >
-                      {item.label}
-                    </Button>
-
-                    {open && (
-                      <Paper elevation={4} sx={S.navDropdown}>
-                        {item.submenu.map((sub) => (
-                          <Box
-                            key={sub}
-                            onClick={() => {
-                              setPage(item.page)
-                              setOpen(false)
-                            }}
-                            sx={S.navDropdownItem}
-                          >
-                            {sub}
-                          </Box>
-                        ))}
-                      </Paper>
-                    )}
-                  </Box>
-                )
-              }
-          )}
+          {SEARCH_FILTERS.map((f) => (
+            <MenuItem key={f.value} value={f.value}>
+              {f.label}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
 
@@ -131,17 +116,13 @@ function SearchBar() {
 
       <InputBase
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={handleQueryChange}
         placeholder="Search users, products, services..."
         sx={S.searchInput}
       />
 
       {query && (
-        <IconButton
-          size="small"
-          onClick={() => setQuery('')}
-          sx={S.searchClearBtn}
-        >
+        <IconButton size="small" onClick={handleClear} sx={S.searchClearBtn}>
           <Close fontSize="small" />
         </IconButton>
       )}
@@ -149,140 +130,195 @@ function SearchBar() {
   )
 }
 
-// ── NAV DROPDOWN ITEM ─────────────────────────────────────────
+// ── NAV ITEM ──────────────────────────────────────────────────
 
-function NavDropdownItem({ item, setPage }) {
-  const [open, setOpen] = useState(false)
-  const closeTimer = useRef(null)
+function NavItem({ item }) {
+  const navigate = useNavigate()
 
-  const handleEnter = () => {
-    clearTimeout(closeTimer.current)
-    setOpen(true)
-  }
-
-  const handleLeave = () => {
-    closeTimer.current = setTimeout(() => setOpen(false), 120)
-  }
+  const handleClick = () => navigate(item.path)
 
   return (
-    <Box
-      sx={S.navItemWrapper}
-      onMouseEnter={handleEnter}
-      onMouseLeave={handleLeave}
-    >
-      <Button
-        startIcon={item.icon}
-        endIcon={
-          <KeyboardArrowDown
-            sx={{ ...S.navArrow, ...(open ? S.navArrowOpen : {}) }}
-          />
-        }
-        onClick={() => setPage(item.page)}
-        sx={S.navBtn}
-        disableRipple={false}
-      >
-        {item.label}
-      </Button>
+    <Button startIcon={item.icon} onClick={handleClick} sx={S.navBtn}>
+      {item.label}
+    </Button>
+  )
+}
 
-      {open && (
-        <Paper elevation={4} sx={S.navDropdown}>
-          {item.submenu.map((sub) => (
-            <Box
-              key={sub}
-              onClick={() => {
-                setPage(item.page)
-                setOpen(false)
-              }}
-              sx={S.navDropdownItem}
-            >
-              {sub}
+// ── USER MENU ─────────────────────────────────────────────────
+
+function UserMenu({ profile }) {
+  const navigate = useNavigate()
+  const [anchor, setAnchor] = useState(null)
+
+  const isOpen = Boolean(anchor)
+
+  const handleOpen = (e) => setAnchor(e.currentTarget)
+  const handleClose = () => setAnchor(null)
+
+  const handleNavigate = (path) => {
+    handleClose()
+    navigate(path)
+  }
+
+  const initials = profile.fullName
+    ? profile.fullName
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
+    : ''
+
+  return (
+    <>
+      <IconButton onClick={handleOpen} sx={S.userAvatarBtn}>
+        <Avatar
+          src={profile.profileImage.file.url ?? undefined}
+          sx={S.userAvatar}
+        >
+          {!profile.profilePhoto && initials}
+        </Avatar>
+      </IconButton>
+
+      <Popover
+        open={isOpen}
+        anchorEl={anchor}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        slotProps={{ paper: { sx: S.userPopover } }}
+      >
+        <Box sx={S.userPopoverHeader}>
+          <Avatar
+            src={profile.profileImage?.file?.url ?? undefined}
+            sx={S.userPopoverAvatar}
+          >
+            {!profile.profilePhoto && initials}
+          </Avatar>
+          <Box>
+            <Typography variant="subtitle2" fontWeight={700}>
+              {profile.fullName}
+            </Typography>
+            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+              {profile.user?.email ?? '—'}
+            </Typography>
+            <Box sx={S.userRoleBadge}>
+              <Typography variant="caption" fontWeight={600}>
+                {profile.role?.[0] ?? 'Buyer'}
+              </Typography>
             </Box>
+          </Box>
+        </Box>
+
+        <Divider />
+
+        <List disablePadding sx={S.userMenuList}>
+          {USER_MENU_ITEMS.map((item) => (
+            <ListItemButton
+              key={item.label}
+              onClick={() => handleNavigate(item.path)}
+              sx={S.userMenuItem}
+            >
+              <ListItemIcon sx={S.userMenuIcon}>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.label} />
+            </ListItemButton>
           ))}
-        </Paper>
-      )}
-    </Box>
+        </List>
+
+        <Divider />
+
+        <LogoutButton styles={{ navItem: S.userMenuLogout }} />
+      </Popover>
+    </>
   )
 }
 
 // ── NAVBAR ────────────────────────────────────────────────────
 
-export function Navbar({ setPage }) {
+export default function Navbar() {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const location = useLocation()
   const [showMsg, setShowMsg] = useState(false)
 
+  const { data: authUser } = useQuery({
+    queryKey: ['profile'],
+    queryFn: fetchProfile,
+    retry: false,
+  })
+
+  const profile = authUser?.data || authUser || null
+
+  const isOnDashboard = location.pathname === '/dashboard'
+
   const handleDashboard = () => {
-    if (user) {
+    if (isOnDashboard) {
+      navigate('/')
+    } else if (profile) {
       navigate('/dashboard')
     } else {
       setShowMsg(true)
     }
   }
+
+  const handleCloseMsg = () => setShowMsg(false)
+
+  const handleSignIn = () => {
+    setShowMsg(false)
+    navigate('/login')
+  }
+
   return (
     <Box component="header" sx={S.navbarRoot}>
       <Container maxWidth="xl">
         <Stack sx={S.navbarInner}>
-          {/* Logo */}
           <Logo />
 
-          {/* Search */}
           <SearchBar />
 
           <Box sx={{ flex: 1 }} />
 
-          {/* Products & Services nav */}
           <Stack sx={S.navItemsRow}>
             {NAV_ITEMS.map((item) => (
-              <NavDropdownItem key={item.label} item={item} setPage={setPage} />
+              <NavItem key={item.label} item={item} />
             ))}
           </Stack>
 
-          {/* Notifications */}
           <IconButton sx={S.notifBtn}>
             <Badge badgeContent={3} color="error">
               <Notifications />
             </Badge>
           </IconButton>
 
-          {/* Dashboard */}
-          <>
-            <Button
-              variant="contained"
-              color="primary"
-              startIcon={<Dashboard />}
-              onClick={handleDashboard}
-              sx={S.dashboardBtn}
-            >
-              Dashboard
-            </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={isOnDashboard ? <Home /> : <Dashboard />}
+            onClick={handleDashboard}
+            sx={S.dashboardBtn}
+          >
+            {isOnDashboard ? 'Home' : 'Dashboard'}
+          </Button>
 
-            {/* Toast message with sign in button */}
-            <Snackbar
-              open={showMsg}
-              autoHideDuration={6000}
-              onClose={() => setShowMsg(false)}
-              anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          {profile && <UserMenu profile={profile} />}
+
+          <Snackbar
+            open={showMsg}
+            autoHideDuration={6000}
+            onClose={handleCloseMsg}
+            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          >
+            <Alert
+              severity="warning"
+              onClose={handleCloseMsg}
+              action={
+                <Button color="inherit" size="small" onClick={handleSignIn}>
+                  Sign in
+                </Button>
+              }
             >
-              <Alert
-                severity="warning"
-                onClose={() => setShowMsg(false)}
-                action={
-                  <Button
-                    color="inherit"
-                    size="small"
-                    onClick={() => {
-                      setShowMsg(false)
-                      navigate('/login')
-                    }}
-                  >
-                    Sign in
-                  </Button>
-                }
-              >
-                Sign in or create an account to access your dashboard.
-              </Alert>
-            </Snackbar>
-          </>
+              Sign in or create an account to access your dashboard.
+            </Alert>
+          </Snackbar>
         </Stack>
       </Container>
     </Box>

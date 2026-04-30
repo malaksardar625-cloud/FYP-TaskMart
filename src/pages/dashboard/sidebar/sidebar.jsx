@@ -24,7 +24,6 @@ import { useNavigate } from 'react-router-dom'
 import { styles } from '../dashboard.styles.js'
 import LogoutButton from './logout.jsx'
 
-import MOCK_USER from '../../../mockData/user.json'
 import ROLE_DATA from '../../../mockData/roleLabels.json'
 import NAV_DATA from '../../../mockData/navItems.json'
 
@@ -44,9 +43,9 @@ const NAV_ICONS = {
   Users: <PeopleOutlined />,
 }
 
-export default function Sidebar({ mobileOpen, onClose }) {
+export default function Sidebar({ mobileOpen, onClose, user }) {
   const navigate = useNavigate()
-  const role = MOCK_USER.role
+  const role = user.role
   const roleInfo = ROLE_DATA[role]
 
   const content = (
@@ -56,7 +55,6 @@ export default function Sidebar({ mobileOpen, onClose }) {
         sx={{
           display: { xs: 'flex', md: 'none' },
           justifyContent: 'flex-end',
-          mb: 1,
         }}
       >
         <IconButton onClick={onClose} size="small">
@@ -66,10 +64,12 @@ export default function Sidebar({ mobileOpen, onClose }) {
 
       {/* User info */}
       <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', mb: 4 }}>
-        <Avatar sx={styles.topAvatar}>{MOCK_USER.fullName[0]}</Avatar>
+        <Avatar src={user.profileImageUrl} sx={styles.topAvatar}>
+          {user.fullName[0]}
+        </Avatar>
         <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-          <Typography variant="body2" fontWeight={600} color="text.primary">
-            {MOCK_USER.fullName}
+          <Typography variant="h6" fontWeight={700} color="text.primary">
+            {user.fullName}
           </Typography>
           <Chip
             size="small"
@@ -82,7 +82,16 @@ export default function Sidebar({ mobileOpen, onClose }) {
       </Stack>
 
       {/* Nav links */}
-      <Stack spacing={0.5} flex={1} sx={{ overflow: 'auto' }}>
+      <Stack
+        spacing={0.5}
+        flex={1}
+        sx={{
+          overflowY: 'auto',
+          scrollbar: 'hidden',
+          overflowX: 'hidden',
+          ...styles.hideScrollbar,
+        }}
+      >
         {NAV_DATA.map((item) => (
           <Box
             key={item.label}
