@@ -26,7 +26,8 @@ import { useTheme } from '@mui/material/styles'
 import { useNavigate } from 'react-router-dom'
 
 import { useCountUp } from '../../hooks/useCountUp'
-import { ItemCard, Footer } from '../../components/shared.jsx'
+import { Footer } from '../../components/footer/footer.jsx'
+import { ItemCard } from '../../components/itemCard/itemCard.jsx'
 import productsData from '../../mockData/Products.json'
 import servicesData from '../../mockData/services.json'
 import { useResponsive } from '../../hooks/useResponsive.js'
@@ -332,7 +333,7 @@ export default function HomePage({ setPage, addToCart }) {
               >
                 TaskMart is Pakistan's fastest-growing platform connecting
                 everyday buyers with trusted product sellers and skilled service
-                providers. Electronics, furniture, home repair — we've got it
+                providers. Electronics, furniture, home repair, we've got it
                 all.
               </Typography>
 

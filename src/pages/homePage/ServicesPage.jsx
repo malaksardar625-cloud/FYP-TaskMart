@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { Box, Chip, Container, Grid, Stack, Typography } from '@mui/material'
 
-import { ItemCard, CouponBanner, Footer } from '../../components/shared.jsx'
+import { ItemCard } from '../../components/itemCard/itemCard.jsx'
+import { CouponBanner } from '../../components/couponBanner.jsx'
+import { Footer } from '../../components/footer/footer.jsx'
 import Navbar from '../../components/Navbar'
 
 import servicesData from '../../mockData/services.json'

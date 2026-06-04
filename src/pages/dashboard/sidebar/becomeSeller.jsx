@@ -119,7 +119,7 @@ export default function BecomeProductSeller() {
       formData.append('shopDescription', form.shopDescription.trim())
       formData.append('file', logoFile)
 
-      const res = await fetch('http://localhost:5000/api/sellers', {
+      const res = await fetch('http://localhost:5000/api/profile/seller', {
         method: 'POST',
         credentials: 'include',
         body: formData,

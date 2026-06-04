@@ -38,7 +38,7 @@ import {
 import { useNavigate, useLocation } from 'react-router-dom'
 
 import LogoutButton from '../pages/dashboard/sidebar/logout.jsx'
-import { Logo } from './shared.jsx'
+import { Logo } from './logo.jsx'
 import * as S from './styles.js'
 
 // ── API ───────────────────────────────────────────────────────

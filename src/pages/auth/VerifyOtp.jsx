@@ -11,7 +11,7 @@ import {
   Stack,
 } from '@mui/material'
 import { styles } from './auth.styles.js'
-import { Logo } from '../../components/shared.jsx'
+import { Logo } from '../../components/logo.jsx'
 
 export default function VerifyOtp() {
   const navigate = useNavigate()

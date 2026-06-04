@@ -162,7 +162,7 @@ export default function BecomeServiceProvider() {
     setErrors({})
 
     try {
-      const res = await fetch('http://localhost:5000/api/providers', {
+      const res = await fetch('http://localhost:5000/api/profile/provider', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

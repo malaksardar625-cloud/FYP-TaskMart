@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import {
   Box,
   Paper,
@@ -47,7 +48,13 @@ import { useContext } from 'react'
 import { AuthContext } from '../../../context/authContext.js'
 import { styles } from './settings.styles.js'
 
-const API_BASE = import.meta.env.VITE_API_URL || ''
+const api = async (url) => {
+  const res = await fetch(`http://localhost:5000${url}`, {
+    credentials: 'include',
+  })
+  if (!res.ok) throw new Error('Request failed')
+  return res.json()
+}
 
 const SECTION_NAV = [
   { id: 'appearance', label: 'Appearance', icon: <PaletteOutlined /> },
@@ -65,7 +72,14 @@ const SECTION_NAV = [
 export default function Settings() {
   const navigate = useNavigate()
   const { mode, toggleMode, resolvedMode } = useThemeMode()
-  const { user } = useContext(AuthContext)
+  useContext(AuthContext)
+
+  const { data: authUser } = useQuery({
+    queryKey: ['profile'],
+    queryFn: () => api('/api/profile/base/byUser'),
+  })
+
+  const profile = authUser?.data || authUser
 
   const [activeSection, setActiveSection] = useState('appearance')
   const [themeChoice, setThemeChoice] = useState(mode)
@@ -76,12 +90,26 @@ export default function Settings() {
   })
   const [editingAccount, setEditingAccount] = useState(false)
   const [accountForm, setAccountForm] = useState({
-    fullName: user?.fullName || '',
-    username: user?.username || '',
-    email: user?.email || '',
-    phone: user?.phone || '',
-    bio: user?.bio || '',
+    fullName: '',
+    username: '',
+    email: '',
+    phone: '',
+    bio: '',
   })
+
+  useEffect(() => {
+    if (profile) {
+      setAccountForm({
+        fullName: profile?.fullName || '',
+        username: profile?.user?.userName || '',
+        email: profile?.user?.email || '',
+        phone: profile?.phone || '',
+        bio: profile?.bio || '',
+      })
+    }
+  }, [profile])
+
+  // ── Fetch real profile from backend ──────────────────────────
 
   // ── Roles state ──────────────────────────────────────────────
   const [sellerProfile, setSellerProfile] = useState(null)
@@ -110,14 +138,14 @@ export default function Settings() {
 
   // ── Fetch role profiles ───────────────────────────────────────
   const fetchRoleProfiles = useCallback(async () => {
-    if (!user?._id) return
+    if (!profile?._id) return
     setRolesLoading(true)
     try {
       const [sellerRes, providerRes] = await Promise.allSettled([
         fetch(`http://localhost:5000/api/sellers/me`, {
           credentials: 'include',
         }),
-        fetch(`http://localhost:5000/api/providers?user=${user._id}`, {
+        fetch(`http://localhost:5000/api/providers?user=${profile?._id}`, {
           credentials: 'include',
         }),
       ])
@@ -135,8 +163,7 @@ export default function Settings() {
     } finally {
       setRolesLoading(false)
     }
-  }, [user?._id])
-
+  }, [profile?._id])
   useEffect(() => {
     if (activeSection === 'roles') fetchRoleProfiles()
   }, [activeSection, fetchRoleProfiles])
@@ -151,8 +178,8 @@ export default function Settings() {
   // ── Account ───────────────────────────────────────────────────
   const handleSaveAccount = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/users/${user._id}`, {
-        method: 'PATCH',
+      const res = await fetch(`http://localhost:5000/api/profile/base`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(accountForm),
@@ -374,7 +401,12 @@ export default function Settings() {
                 spacing={2}
                 sx={{ alignItems: 'center', mb: 3 }}
               >
-                <Avatar sx={styles.profileAvatar}>{user?.fullName?.[0]}</Avatar>
+                <Avatar
+                  src={profile?.profileImage?.file?.url || ''}
+                  sx={styles.profileAvatar}
+                >
+                  {accountForm.fullName?.[0]}
+                </Avatar>
                 <Box>
                   <Typography
                     variant="subtitle1"
@@ -719,7 +751,7 @@ export default function Settings() {
                       height: '100%',
                       bgcolor: providerProfile
                         ? 'success.main'
-                        : 'secondary.main',
+                        : 'primary.main',
                       borderRadius: '4px 0 0 4px',
                     }}
                   />
@@ -739,10 +771,10 @@ export default function Settings() {
                         justifyContent: 'center',
                         bgcolor: providerProfile
                           ? 'success.light'
-                          : 'secondary.light',
+                          : 'primary.light',
                         color: providerProfile
                           ? 'success.main'
-                          : 'secondary.main',
+                          : 'primary.main',
                         flexShrink: 0,
                       }}
                     >
@@ -862,7 +894,7 @@ export default function Settings() {
                     {!providerProfile && (
                       <Button
                         variant="contained"
-                        color="secondary"
+                        color="primary"
                         size="small"
                         endIcon={<ArrowForwardOutlined />}
                         onClick={() => navigate('/settings/become-provider')}

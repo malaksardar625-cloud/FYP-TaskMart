@@ -28,7 +28,7 @@ import {
 import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import { styles } from './auth.styles.js'
 import { signupSchema as schema } from './auth.schemas.js'
-import { Logo } from '../../components/shared.jsx'
+import { Logo } from '../../components/logo.jsx'
 
 // ── EMAIL VERIFICATION DIALOG ─────────────────────────────────
 

@@ -1,0 +1,1 @@
+export const WISH_SNACK_DURATION = 2000

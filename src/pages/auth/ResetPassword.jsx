@@ -17,7 +17,7 @@ import {
 import { LockOutlined, Visibility, VisibilityOff } from '@mui/icons-material'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { styles } from './auth.styles.js'
-import { Logo } from '../../components/shared.jsx'
+import { Logo } from '../../components/logo.jsx'
 
 export default function ResetPassword() {
   const navigate = useNavigate()
