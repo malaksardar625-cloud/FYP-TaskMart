@@ -1,0 +1,50 @@
+export const styles = {
+  sidebar: {
+    width: { xs: 0, md: 310 },
+    display: { xs: 'none', md: 'flex' },
+    flexDirection: 'column',
+    flexShrink: 0,
+    bgcolor: 'background.paper',
+    borderLeft: '1px solid',
+    borderColor: 'divider',
+    overflow: 'hidden',
+  },
+  header: {
+    px: 2,
+    py: 1.5,
+    borderBottom: '1px solid',
+    borderColor: 'divider',
+  },
+  list: {
+    flex: 1,
+    overflowY: 'auto',
+    p: 1.5,
+  },
+  empty: {
+    textAlign: 'center',
+    py: 6,
+    px: 2,
+  },
+  card: {
+    p: 1.5,
+    borderRadius: 2,
+    cursor: 'pointer',
+    border: '1px solid',
+    borderColor: 'divider',
+    mb: 1,
+    transition: 'all 0.15s',
+    '&:hover': { borderColor: 'primary.main', bgcolor: 'action.hover' },
+  },
+  cardActive: {
+    borderColor: 'primary.main',
+    bgcolor: 'primary.50',
+  },
+  avatar: {
+    width: 42,
+    height: 42,
+    borderRadius: 1.5,
+    flexShrink: 0,
+  },
+  chip: { fontSize: '0.63rem', height: 18 },
+  distRow: { display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.25 },
+}

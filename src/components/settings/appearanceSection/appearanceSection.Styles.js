@@ -1,0 +1,41 @@
+export const styles = {
+  card: {
+    p: 3,
+    border: '1px solid',
+    borderColor: 'divider',
+    borderRadius: 3,
+  },
+  themeOption: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    p: 2,
+    borderRadius: 2,
+    border: '2px solid',
+    borderColor: 'divider',
+    cursor: 'pointer',
+    transition: 'all 0.15s ease',
+    '&:hover': { borderColor: 'primary.main', bgcolor: 'action.hover' },
+  },
+  themeOptionActive: {
+    borderColor: 'primary.main',
+    bgcolor: 'primary.light',
+  },
+  themeIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 2,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'all 0.15s ease',
+  },
+  previewBox: {
+    mt: 2.5,
+    p: 1.5,
+    borderRadius: 2,
+    bgcolor: 'action.hover',
+    border: '1px solid',
+    borderColor: 'divider',
+  },
+}

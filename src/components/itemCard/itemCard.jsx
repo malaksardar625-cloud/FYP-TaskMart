@@ -14,10 +14,10 @@ import {
   Alert,
 } from '@mui/material'
 import { Add, FavoriteBorder } from '@mui/icons-material'
-import { Stars } from '../stars'
+import { Stars } from '../generalComponents/stars'
 import { badgeColor } from '../../shared/shared.utils'
 import { WISH_SNACK_DURATION } from './itemCard.constants'
-import * as S from '../styles'
+import * as S from './itemCard.Styles'
 
 export function ItemCard({ item, addToCart, isService = false }) {
   const [isWished, setIsWished] = useState(false)
@@ -47,7 +47,7 @@ export function ItemCard({ item, addToCart, isService = false }) {
         <CardMedia
           component="img"
           height="190"
-          image={item.image}
+          image={item.image || item.images?.[0] || item.thumbnail || ''}
           alt={item.name}
           sx={{ objectFit: 'cover' }}
         />
@@ -94,7 +94,9 @@ export function ItemCard({ item, addToCart, isService = false }) {
         </Typography>
 
         <Typography variant="caption" sx={S.itemCardMeta}>
-          {isService ? `by ${item.provider}` : `by ${item.seller}`}
+          {isService
+            ? `by ${item.provider}`
+            : `by ${item.seller?.shopName || item.seller?.name || item.seller || 'Unknown Seller'}`}
           {isService && (
             <Box component="span" sx={S.itemCardMetaAccent}>
               {' '}

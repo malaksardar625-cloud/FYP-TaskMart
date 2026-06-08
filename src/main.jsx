@@ -1,28 +1,19 @@
-import { StrictMode } from 'react'
+console.log('🔥 MAIN START')
+
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
-import { Provider } from 'react-redux'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { AppThemeProvider } from './context/appThemeProvider.jsx'
-import { store } from './store/store'
-import './index.css'
-import App from './App.jsx'
-import { AuthProvider } from './context/authProvider.jsx'
+import App from './App'
 
-const queryClient = new QueryClient()
+console.log('🔥 IMPORTS OK')
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <AppThemeProvider>
-      <Provider store={store}>
-        <QueryClientProvider client={queryClient}>
-          <BrowserRouter>
-            <AuthProvider>
-              <App />
-            </AuthProvider>
-          </BrowserRouter>
-        </QueryClientProvider>
-      </Provider>
-    </AppThemeProvider>
-  </StrictMode>
+const rootElement = document.getElementById('root')
+
+console.log('🔥 ROOT ELEMENT:', rootElement)
+
+createRoot(rootElement).render(
+  <div>
+    {console.log('🔥 RENDER EXECUTING')}
+    <App />
+  </div>
 )
+
+console.log('🔥 MAIN END')

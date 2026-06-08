@@ -1,0 +1,31 @@
+export const styles = {
+  sidebar: {
+    width: 260,
+    flexShrink: 0,
+    bgcolor: 'background.paper',
+    borderRight: '1px solid',
+    borderColor: 'divider',
+    display: { xs: 'none', md: 'flex' },
+    flexDirection: 'column',
+    p: 3,
+    position: 'sticky',
+    top: 0,
+    height: '100vh',
+    overflowY: 'auto',
+  },
+  navItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 1.5,
+    px: 1.5,
+    py: 1,
+    borderRadius: 2,
+    cursor: 'pointer',
+    transition: 'all 0.15s ease',
+    '&:hover': { bgcolor: 'action.hover' },
+  },
+  navItemActive: {
+    bgcolor: 'primary.light',
+    '&:hover': { bgcolor: 'primary.light' },
+  },
+}
